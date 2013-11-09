@@ -36,5 +36,6 @@
 		<module>a1-stock-batch</module>
 		<module>a1-stock-ddl</module>
 		<module>a1-lib</module>
+		<module>a1-stock-war</module>
 	</modules>
 </project>

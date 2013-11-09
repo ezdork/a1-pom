@@ -7,13 +7,18 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>a1-stock-server</artifactId>
-	<packaging>war</packaging>
-	
+	<packaging>jar</packaging>
+
 	<dependencies>
 		<dependency>
 			<groupId>ez.dork</groupId>
 			<artifactId>a1-stock-supply</artifactId>
 			<version>${a1-stock-supply.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ez.dork</groupId>
+			<artifactId>a1-lib</artifactId>
+			<version>${a1-lib.version}</version>
 		</dependency>
 	</dependencies>
 

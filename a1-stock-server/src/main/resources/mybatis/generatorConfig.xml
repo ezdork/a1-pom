@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+
+	<!-- jdbc driver -->
+	<classPathEntry
+		location="C:/Users/tim/.m2/repository/postgresql/postgresql/9.1-901.jdbc4/postgresql-9.1-901.jdbc4.jar" />
+
+	<context id="context1">
+		<jdbcConnection driverClass="org.postgresql.Driver"
+			connectionURL="jdbc:postgresql://localhost:5433/postgres" userId="postgres"
+			password="pass@word1" />
+
+
+		<!-- domain -->
+		<javaModelGenerator targetPackage="ez.dork.stock.domain"
+			targetProject="a1-stock-server" />
+
+		<!-- xml -->
+		<sqlMapGenerator targetPackage="ez.dork.stock.mapper"
+			targetProject="a1-stock-server" />
+
+		<!-- Mapper -->
+		<javaClientGenerator targetPackage="ez.dork.stock.mapper"
+			targetProject="a1-stock-server" type="XMLMAPPER" />
+
+		<table schema="" tableName="stock" domainObjectName="Stock"></table>
+	</context>
+</generatorConfiguration>

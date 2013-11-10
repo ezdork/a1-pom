@@ -160,4 +160,11 @@ public class Stock extends StockKey {
     public void setVolumn(Integer volumn) {
         this.volumn = volumn;
     }
+
+	@Override
+	public String toString() {
+		return "Stock [open=" + open + ", close=" + close + ", heigh=" + heigh + ", low=" + low + ", volumn=" + volumn
+				+ ", getCode()=" + getCode() + ", getDate()=" + getDate() + "]";
+	}
+
 }

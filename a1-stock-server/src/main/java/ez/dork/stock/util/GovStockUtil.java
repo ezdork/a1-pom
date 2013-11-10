@@ -83,7 +83,7 @@ public class GovStockUtil {
 			String[] split2 = line.split(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
 			Stock stock = new Stock();
 			stock.setCode(stockCode);
-			String date = String.valueOf(Integer.valueOf(split2[0].replace("/", "")) + 19000000);
+			String date = String.valueOf(Integer.valueOf(split2[0].replace("/", "")) + 19110000);
 			stock.setDate(date); // 日期
 
 			stock.setOpen(Double.valueOf(split2[3].replace(",", ""))); // 開盤

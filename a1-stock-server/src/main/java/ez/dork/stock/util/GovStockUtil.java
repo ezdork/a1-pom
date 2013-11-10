@@ -34,7 +34,9 @@ public class GovStockUtil {
 		List<String> list = new ArrayList<String>();
 		for (int i = 0; i < 10; i++) {
 			Map<String, String> data = new HashMap<String, String>();
-			data.put("STK", "0999");
+			data.put("STK_NAME", String.valueOf(i));
+			data.put("STK", "");
+			data.put("INDEX_NAME", "");
 			Connection.Response res = Jsoup.connect(KIND_ROOT_URL).data(data).method(Method.POST).execute();
 
 			Map<String, String> cookies = res.cookies();
@@ -66,7 +68,7 @@ public class GovStockUtil {
 		String yyyyMM = DATE_FORMAT.format(calendar.getTime());
 		String url = String.format(URL, yyyyMM, yyyyMM, stockCode);
 		Document doc = Jsoup.connect(url).ignoreContentType(true).get();
-		
+
 		String text = doc.text();
 		String[] split = text.split(" ");
 

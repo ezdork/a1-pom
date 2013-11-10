@@ -31,10 +31,10 @@ public class Cron {
 			while (true) {
 				try {
 
-					System.out.println(stockCode + " : " + DATE_FORMAT.format(calendar.getTime()));
+					System.out.println("Gov " + stockCode + " : " + DATE_FORMAT.format(calendar.getTime()));
 					List<Stock> stockList = GovStockUtil.getStockList(calendar, stockCode);
 					if (stockList.isEmpty()) {
-						System.err.println(stockCode + " : empty " + DATE_FORMAT.format(calendar.getTime()));
+						System.err.println("Gov " + stockCode + " : empty " + DATE_FORMAT.format(calendar.getTime()));
 						break;
 					}
 					for (int index = stockList.size() - 1; index > 0; index--) {

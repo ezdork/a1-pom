@@ -61,13 +61,14 @@ public class OrgStockUtil {
 			stock.setCode(stockCode);
 			String date = String.valueOf(Integer.valueOf(split2[0]) + 19110000);
 			stock.setDate(date); // 日期
-
+			
+			stock.setVolumn(Integer.valueOf(split2[1])); // 成交仟股
+			
 			stock.setOpen(Double.valueOf(split2[3])); // 開盤
 			stock.setHeigh(Double.valueOf(split2[4])); // 最高
 			stock.setLow(Double.valueOf(split2[5])); // 最低
 			stock.setClose(Double.valueOf(split2[6])); // 收盤
 			
-			stock.setVolumn(Integer.valueOf(split2[1])); // 筆數
 
 			list.add(stock);
 		}

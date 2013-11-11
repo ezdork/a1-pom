@@ -139,4 +139,19 @@
 		where code = #{code,jdbcType=CHAR}
 		and date = #{date,jdbcType=CHAR}
 	</update>
+	
+	<select id="selectHeighestStockList" resultMap="BaseResultMap">
+			select T1.* from
+		(select * from stock where date = #{endDate}) T1,
+		(select code,max(heigh) heigh from stock 
+		<if test="beginDate != null">
+			where date between #{beginDate} and #{endDate}
+		</if>
+		group by code) T2
+		where T1.code = T2.code
+		and T1.close &lt; T2.heigh
+		and T1.close * 1.07 > T2.heigh
+		and length(T1.code) = 4
+		order by code;
+	</select>
 </mapper>

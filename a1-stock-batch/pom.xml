@@ -10,11 +10,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>ez.dork</groupId>
-			<artifactId>a1-lib</artifactId>
-			<version>${a1-lib.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ez.dork</groupId>
 			<artifactId>a1-stock-server</artifactId>
 			<version>${a1-stock.version}</version>
 		</dependency>

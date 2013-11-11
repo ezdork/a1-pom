@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,15 @@ import ez.dork.stock.service.StockService;
 import ez.dork.stock.util.GovStockUtil;
 import ez.dork.stock.util.OrgStockUtil;
 
+/**
+ * 
+ * @author tim
+ * 
+ */
 @Component
+@Scope("prototype")
+// The bean scope must be “prototype“, so that each request will return a new
+// instance, to run each individual thread.
 public class StockThread extends Thread {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -41,7 +50,7 @@ public class StockThread extends Thread {
 						stockList = OrgStockUtil.getStockList(calendar, stockCode);
 					}
 					if (stockList.isEmpty()) {
-						System.err.println(String.format("%s : empty %s kind=>%d", stockCode,
+						System.err.println(String.format("%s : %s kind=>%d empty", stockCode,
 								DATE_FORMAT.format(calendar.getTime()), kind));
 					} else {
 						for (int index = stockList.size() - 1; index > 0; index--) {
@@ -54,10 +63,10 @@ public class StockThread extends Thread {
 					}
 
 				} catch (DuplicateKeyException e) {
-					System.err.println(String.format("%s : already insert %s kind=>%d", stockCode,
+					System.err.println(String.format("%s : %s kind=>%d already insert", stockCode,
 							DATE_FORMAT.format(calendar.getTime()), kind));
 				} catch (NumberFormatException e) {
-					System.err.println(String.format("%s : has no data %s kind=>%d", stockCode,
+					System.err.println(String.format("%s : %s kind=>%d has no data", stockCode,
 							DATE_FORMAT.format(calendar.getTime()), kind));
 				} catch (Exception e) {
 					e.printStackTrace();

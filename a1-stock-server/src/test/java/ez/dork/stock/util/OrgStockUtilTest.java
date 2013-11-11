@@ -1,4 +1,4 @@
-package ez.dork.util;
+package ez.dork.stock.util;
 
 import java.io.IOException;
 import java.util.Calendar;

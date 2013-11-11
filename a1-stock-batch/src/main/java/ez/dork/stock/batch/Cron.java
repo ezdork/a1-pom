@@ -7,7 +7,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import ez.dork.stock.queue.StockQueue;
@@ -27,7 +26,7 @@ public class Cron {
 	@Autowired
 	private StockService stockService;
 
-	@Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
+	// @Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
 	public void getStock() throws IOException {
 
 		List<String> codeList = GovStockUtil.getCodeList();
@@ -39,7 +38,7 @@ public class Cron {
 			STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 1));
 		}
 
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 20; i++) {
 			StockThread stockThread = ctx.getBean(StockThread.class);
 			stockThread.start();
 		}

@@ -1,5 +1,9 @@
 package ez.dork.stock.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.StockKey;
 
@@ -52,4 +56,6 @@ public interface StockMapper {
 	 * @mbggenerated Sun Nov 10 01:06:58 CST 2013
 	 */
 	int updateByPrimaryKey(Stock record);
+
+	List<Stock> selectHeighestStockList(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 }

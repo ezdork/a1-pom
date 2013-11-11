@@ -172,4 +172,33 @@ public class Stock extends StockKey {
 				+ heigh + ", low=" + low + ", volumn=" + volumn + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((close == null) ? 0 : close.hashCode());
+		result = prime * result + ((heigh == null) ? 0 : heigh.hashCode());
+		result = prime * result + ((low == null) ? 0 : low.hashCode());
+		result = prime * result + ((open == null) ? 0 : open.hashCode());
+		result = prime * result + ((volumn == null) ? 0 : volumn.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		Stock other = (Stock) obj;
+		if (other.getCode().equals(this.getCode()) && other.getDate().equals(this.getDate())) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

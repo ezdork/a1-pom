@@ -2,6 +2,7 @@ package ez.dork.stock.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,6 +15,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.googlecode.jcsv.CSVStrategy;
+import com.googlecode.jcsv.reader.CSVReader;
+import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
+import com.googlecode.jcsv.reader.internal.DefaultCSVEntryParser;
+
 import ez.dork.stock.domain.Stock;
 
 /**
@@ -23,8 +29,10 @@ import ez.dork.stock.domain.Stock;
  * 
  */
 public class GovStockUtil {
-//	private static final String KIND_ROOT_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data2.php";
-//	private static final String KIND_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK_words.php?STK_NAME=%d";
+	// private static final String KIND_ROOT_URL =
+	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data2.php";
+	// private static final String KIND_URL =
+	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK_words.php?STK_NAME=%d";
 
 	private static final String CATEGORY_ROOT_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data_Top.htm";
 	private static final String CATEGORY_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK%s.php?STK=%s";
@@ -88,72 +96,96 @@ public class GovStockUtil {
 		return list;
 	}
 
-//	private static List<String> getAllStockList() throws IOException {
-//		List<String> list = new ArrayList<String>();
-//		for (int i = 0; i < 10; i++) {
-//			Map<String, String> data = new HashMap<String, String>();
-//			data.put("STK_NAME", String.valueOf(i));
-//			data.put("STK", "");
-//			data.put("INDEX_NAME", "");
-//			Connection.Response res = Jsoup.connect(KIND_ROOT_URL).data(data).method(Method.POST).execute();
-//
-//			Map<String, String> cookies = res.cookies();
-//
-//			String url = String.format(KIND_URL, i);
-//
-//			// Document doc = Jsoup.parse(new URL(url).openStream(), "Big5",
-//			// url);
-//			Document doc = Jsoup.connect(url).cookies(cookies).get();
-//			Elements newsHeadlines = doc.select("a");
-//			// System.out.println(doc);
-//			List<String> tmpList = new ArrayList<String>();
-//			for (int index = 0; index < newsHeadlines.size(); index++) {
-//				String text = newsHeadlines.get(index).text();
-//				// System.out.println(text);
-//				String stockCode = text.split(" ")[0];
-//				// System.out.println(stockCode);
-//				tmpList.add(stockCode);
-//			}
-//			list.removeAll(tmpList);
-//			list.addAll(tmpList);
-//
-//		}
-//		Collections.sort(list);
-//		return list;
-//	}
+	// private static List<String> getAllStockList() throws IOException {
+	// List<String> list = new ArrayList<String>();
+	// for (int i = 0; i < 10; i++) {
+	// Map<String, String> data = new HashMap<String, String>();
+	// data.put("STK_NAME", String.valueOf(i));
+	// data.put("STK", "");
+	// data.put("INDEX_NAME", "");
+	// Connection.Response res =
+	// Jsoup.connect(KIND_ROOT_URL).data(data).method(Method.POST).execute();
+	//
+	// Map<String, String> cookies = res.cookies();
+	//
+	// String url = String.format(KIND_URL, i);
+	//
+	// // Document doc = Jsoup.parse(new URL(url).openStream(), "Big5",
+	// // url);
+	// Document doc = Jsoup.connect(url).cookies(cookies).get();
+	// Elements newsHeadlines = doc.select("a");
+	// // System.out.println(doc);
+	// List<String> tmpList = new ArrayList<String>();
+	// for (int index = 0; index < newsHeadlines.size(); index++) {
+	// String text = newsHeadlines.get(index).text();
+	// // System.out.println(text);
+	// String stockCode = text.split(" ")[0];
+	// // System.out.println(stockCode);
+	// tmpList.add(stockCode);
+	// }
+	// list.removeAll(tmpList);
+	// list.addAll(tmpList);
+	//
+	// }
+	// Collections.sort(list);
+	// return list;
+	// }
 
 	public static List<Stock> getStockList(Calendar calendar, String stockCode) throws IOException {
 		String yyyyMM = DATE_FORMAT.format(calendar.getTime());
 		String url = String.format(URL, yyyyMM, yyyyMM, stockCode);
-		Document doc = Jsoup.connect(url).ignoreContentType(true).get();
 
-		String text = doc.text();
-		String[] split = text.split(" ");
+		InputStream openStream = null;
+		InputStreamReader reader = null;
+		CSVReader<String[]> csvPersonReader = null;
 
 		List<Stock> list = new ArrayList<Stock>();
-		for (int i = 5; i < split.length; i++) {
+		try {
+			openStream = new URL(url).openStream();
 
-			String line = split[i];
-			if (line.contains("--")) {
-				continue;
+			reader = new InputStreamReader(openStream, "BIG5");
+
+			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
+					.entryParser(new DefaultCSVEntryParser()).build();
+
+			List<String[]> stockList = csvPersonReader.readAll();
+			for (int index = 0; index < stockList.size(); index++) {
+				String[] row = stockList.get(index);
+
+				try {
+					Stock stock = new Stock();
+					
+					stock.setCode(stockCode);
+					
+					String date = String.valueOf(Integer.valueOf(row[0].trim().replace("/", "")) + 19110000);
+					stock.setDate(date); // 日期
+
+					Double floor = Math.floor(Integer.valueOf(row[1].replace(",", "")) / 1000);
+					stock.setVolumn(floor.intValue()); // 成交股數
+
+					stock.setOpen(Double.valueOf(row[3].replace(",", ""))); // 開盤
+					stock.setHeigh(Double.valueOf(row[4].replace(",", ""))); // 最高
+					stock.setLow(Double.valueOf(row[5].replace(",", ""))); // 最低
+					stock.setClose(Double.valueOf(row[6].replace(",", ""))); // 收盤
+
+					list.add(stock);
+				} catch (Exception e) {
+				}
 			}
-
-			String[] split2 = line.split(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-			Stock stock = new Stock();
-			stock.setCode(stockCode);
-			String date = String.valueOf(Integer.valueOf(split2[0].replace("/", "")) + 19110000);
-			stock.setDate(date); // 日期
-
-			Double floor = Math.floor(Integer.valueOf(split2[1].replaceAll("[,\"]", "")) / 1000);
-			stock.setVolumn(floor.intValue()); // 成交股數
-
-			stock.setOpen(Double.valueOf(split2[3].replace("[,\"]", ""))); // 開盤
-			stock.setHeigh(Double.valueOf(split2[4].replace("[,\"]", ""))); // 最高
-			stock.setLow(Double.valueOf(split2[5].replace("[,\"]", ""))); // 最低
-			stock.setClose(Double.valueOf(split2[6].replace("[,\"]", ""))); // 收盤
-
-			list.add(stock);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} finally {
+			if (csvPersonReader != null) {
+				csvPersonReader.close();
+			}
+			if (reader != null) {
+				reader.close();
+			}
+			if (openStream != null) {
+				openStream.close();
+			}
 		}
+
 		return list;
 	}
 }

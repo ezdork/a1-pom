@@ -16,11 +16,30 @@ public class StockServiceImplTest {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath*:META-INF/spring/*.xml");
 		StockService stockService = ctx.getBean(StockService.class);
 
-		Calendar calendar = Calendar.getInstance();
-		Integer howManyYears = null;
-		List<Stock> resultList = stockService.selectHeighestStockList(calendar, howManyYears);
-		String date = DATE_FORMAT.format(calendar.getTime());
-		System.out.println(String.format("==== %s ====", date));
+//		List<Stock> resultList1 = stockService.selectHeighestStockList(Calendar.getInstance(), 1);
+//		printStockList(resultList1);
+//		List<Stock> resultList2 = stockService.selectHeighestStockList(Calendar.getInstance(), 2);
+//		printStockList(resultList2);
+//		List<Stock> resultList3 = stockService.selectHeighestStockList(Calendar.getInstance(), 3);
+//		printStockList(resultList3);
+//		List<Stock> resultList5 = stockService.selectHeighestStockList(Calendar.getInstance(), 5);
+//		printStockList(resultList5);
+//		List<Stock> resultList10 = stockService.selectHeighestStockList(Calendar.getInstance(), 10);
+//		printStockList(resultList10);
+		List<Stock> resultListAll = stockService.selectHeighestStockList(Calendar.getInstance(), null);
+		printStockList(resultListAll);
+//
+//		resultList1.removeAll(resultList2);
+//		resultList1.removeAll(resultList3);
+//		resultList1.removeAll(resultList5);
+//		resultList1.removeAll(resultList10);
+//		resultList1.removeAll(resultListAll);
+//
+//		printStockList(resultListAll);
+	}
+	
+	private static void printStockList(List<Stock> resultList) {
+		System.out.println(String.format("==== %s ====", resultList.get(0).getDate()));
 		System.out.println("code, close");
 		for (Stock stock : resultList) {
 			System.out.println(String.format("%s, %.2f", stock.getCode(), stock.getClose()));

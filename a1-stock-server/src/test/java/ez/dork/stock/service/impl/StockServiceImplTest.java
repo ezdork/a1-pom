@@ -25,7 +25,11 @@ public class StockServiceImplTest {
 //		printStockList(resultList5);
 //		List<Stock> resultList10 = stockService.selectHeighestStockList(Calendar.getInstance(), 10);
 //		printStockList(resultList10);
-		List<Stock> resultListAll = stockService.selectHeighestStockList(Calendar.getInstance(), null);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2013);
+		calendar.set(Calendar.MONTH, 10);
+		calendar.set(Calendar.DAY_OF_MONTH, 11);
+		List<Stock> resultListAll = stockService.selectHeighestStockList(calendar, null);
 		printStockList(resultListAll);
 //
 //		resultList1.removeAll(resultList2);

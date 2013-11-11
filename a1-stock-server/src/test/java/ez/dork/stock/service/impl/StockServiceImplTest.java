@@ -1,6 +1,5 @@
 package ez.dork.stock.service.impl;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -10,7 +9,7 @@ import ez.dork.stock.domain.Stock;
 import ez.dork.stock.service.StockService;
 
 public class StockServiceImplTest {
-	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+//	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static void main(String[] args) {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath*:META-INF/spring/*.xml");

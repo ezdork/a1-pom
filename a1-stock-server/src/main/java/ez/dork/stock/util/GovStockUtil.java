@@ -7,12 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.jsoup.Connection;
-import org.jsoup.Connection.Method;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,8 +23,8 @@ import ez.dork.stock.domain.Stock;
  * 
  */
 public class GovStockUtil {
-	private static final String KIND_ROOT_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data2.php";
-	private static final String KIND_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK_words.php?STK_NAME=%d";
+//	private static final String KIND_ROOT_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data2.php";
+//	private static final String KIND_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK_words.php?STK_NAME=%d";
 
 	private static final String CATEGORY_ROOT_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data_Top.htm";
 	private static final String CATEGORY_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK%s.php?STK=%s";
@@ -92,39 +88,39 @@ public class GovStockUtil {
 		return list;
 	}
 
-	private static List<String> getAllStockList() throws IOException {
-		List<String> list = new ArrayList<String>();
-		for (int i = 0; i < 10; i++) {
-			Map<String, String> data = new HashMap<String, String>();
-			data.put("STK_NAME", String.valueOf(i));
-			data.put("STK", "");
-			data.put("INDEX_NAME", "");
-			Connection.Response res = Jsoup.connect(KIND_ROOT_URL).data(data).method(Method.POST).execute();
-
-			Map<String, String> cookies = res.cookies();
-
-			String url = String.format(KIND_URL, i);
-
-			// Document doc = Jsoup.parse(new URL(url).openStream(), "Big5",
-			// url);
-			Document doc = Jsoup.connect(url).cookies(cookies).get();
-			Elements newsHeadlines = doc.select("a");
-			// System.out.println(doc);
-			List<String> tmpList = new ArrayList<String>();
-			for (int index = 0; index < newsHeadlines.size(); index++) {
-				String text = newsHeadlines.get(index).text();
-				// System.out.println(text);
-				String stockCode = text.split(" ")[0];
-				// System.out.println(stockCode);
-				tmpList.add(stockCode);
-			}
-			list.removeAll(tmpList);
-			list.addAll(tmpList);
-
-		}
-		Collections.sort(list);
-		return list;
-	}
+//	private static List<String> getAllStockList() throws IOException {
+//		List<String> list = new ArrayList<String>();
+//		for (int i = 0; i < 10; i++) {
+//			Map<String, String> data = new HashMap<String, String>();
+//			data.put("STK_NAME", String.valueOf(i));
+//			data.put("STK", "");
+//			data.put("INDEX_NAME", "");
+//			Connection.Response res = Jsoup.connect(KIND_ROOT_URL).data(data).method(Method.POST).execute();
+//
+//			Map<String, String> cookies = res.cookies();
+//
+//			String url = String.format(KIND_URL, i);
+//
+//			// Document doc = Jsoup.parse(new URL(url).openStream(), "Big5",
+//			// url);
+//			Document doc = Jsoup.connect(url).cookies(cookies).get();
+//			Elements newsHeadlines = doc.select("a");
+//			// System.out.println(doc);
+//			List<String> tmpList = new ArrayList<String>();
+//			for (int index = 0; index < newsHeadlines.size(); index++) {
+//				String text = newsHeadlines.get(index).text();
+//				// System.out.println(text);
+//				String stockCode = text.split(" ")[0];
+//				// System.out.println(stockCode);
+//				tmpList.add(stockCode);
+//			}
+//			list.removeAll(tmpList);
+//			list.addAll(tmpList);
+//
+//		}
+//		Collections.sort(list);
+//		return list;
+//	}
 
 	public static List<Stock> getStockList(Calendar calendar, String stockCode) throws IOException {
 		String yyyyMM = DATE_FORMAT.format(calendar.getTime());

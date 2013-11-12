@@ -151,6 +151,7 @@
 		where T1.code = T2.code
 		and T1.close &lt; T2.heigh
 		and T1.close * 1.07 > T2.heigh
+		and T1.heigh != T2.heigh
 		and length(T1.code) = 4
 		order by code;
 	</select>

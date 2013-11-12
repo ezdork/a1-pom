@@ -20,7 +20,10 @@ public class GovStockUtilTest {
 
 	@Test
 	public void testGetStockList() throws IOException {
-		List<Stock> stockList = GovStockUtil.getStockList(Calendar.getInstance(), "5533");
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2013);
+		calendar.set(Calendar.MONTH, 8);
+		List<Stock> stockList = GovStockUtil.getStockList(calendar, "9946");
 		for (Stock stock : stockList) {
 			System.out.println(stock);
 		}

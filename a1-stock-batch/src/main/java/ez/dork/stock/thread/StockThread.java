@@ -53,7 +53,7 @@ public class StockThread extends Thread {
 						System.err.println(String.format("%s : %s kind=>%d empty", stockCode,
 								DATE_FORMAT.format(calendar.getTime()), kind));
 					} else {
-						for (int index = stockList.size() - 1; index > 0; index--) {
+						for (int index = stockList.size() - 1; index > -1; index--) {
 							Stock stock = stockList.get(index);
 							stockService.insert(stock);
 						}

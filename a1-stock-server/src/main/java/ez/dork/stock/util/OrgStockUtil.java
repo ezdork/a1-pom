@@ -97,7 +97,7 @@ public class OrgStockUtil {
 					stock.setVolumn(Integer.valueOf(row[1].replace(",", ""))); // 成交仟股
 
 					stock.setOpen(Double.valueOf(row[3].replace(",", ""))); // 開盤
-					stock.setHeigh(Double.valueOf(row[4].replace(",", ""))); // 最高
+					stock.setHigh(Double.valueOf(row[4].replace(",", ""))); // 最高
 					stock.setLow(Double.valueOf(row[5].replace(",", ""))); // 最低
 					stock.setClose(Double.valueOf(row[6].replace(",", ""))); // 收盤
 

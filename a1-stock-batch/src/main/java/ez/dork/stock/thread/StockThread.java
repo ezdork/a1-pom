@@ -52,6 +52,18 @@ public class StockThread extends Thread {
 					if (stockList.isEmpty()) {
 						System.err.println(String.format("%s : %s kind=>%d empty", stockCode,
 								DATE_FORMAT.format(calendar.getTime()), kind));
+						if (kind == 0) { // 上市讀完, 改讀上櫃資料							
+							// 情況1.抓當月的上櫃資料
+							queue.setKind(1);
+							Cron.STOCK_QUEUE.add(queue);
+
+							// 情況2.仍有上櫃資料未抓
+							Calendar calendar2 = Calendar.getInstance();
+							calendar2.setTime(calendar.getTime());
+							calendar2.add(Calendar.MONTH, 1);
+							StockQueue queue2 = new StockQueue(queue.getCode(), calendar2, 1);
+							Cron.STOCK_QUEUE.add(queue2);
+						}
 					} else {
 						for (int index = stockList.size() - 1; index > -1; index--) {
 							Stock stock = stockList.get(index);

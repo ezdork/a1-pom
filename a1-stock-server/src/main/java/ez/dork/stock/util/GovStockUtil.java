@@ -164,7 +164,7 @@ public class GovStockUtil {
 					stock.setVolumn(floor.intValue()); // 成交股數
 
 					stock.setOpen(Double.valueOf(row[3].replace(",", ""))); // 開盤
-					stock.setHeigh(Double.valueOf(row[4].replace(",", ""))); // 最高
+					stock.setHigh(Double.valueOf(row[4].replace(",", ""))); // 最高
 					stock.setLow(Double.valueOf(row[5].replace(",", ""))); // 最低
 					stock.setClose(Double.valueOf(row[6].replace(",", ""))); // 收盤
 

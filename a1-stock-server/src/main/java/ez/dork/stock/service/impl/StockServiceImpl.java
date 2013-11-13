@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.mapper.StockMapper;
+import ez.dork.stock.mapper.StrategyMapper;
 import ez.dork.stock.service.StockService;
 
 @Service
@@ -18,6 +20,8 @@ public class StockServiceImpl implements StockService {
 
 	@Autowired
 	private StockMapper stockMapper;
+	@Autowired
+	private StrategyMapper strategyMapper;
 
 	@Override
 	public int insert(Stock stock) {
@@ -35,7 +39,22 @@ public class StockServiceImpl implements StockService {
 			calendar.add(Calendar.YEAR, -howManyYears);
 			beginDate = DATE_FORMAT.format(calendar.getTime());
 		}
-		return stockMapper.selectHeighestStockList(beginDate, endDate);
+		return stockMapper.selectHighestStockList(beginDate, endDate);
+	}
+
+	@Override
+	public List<Stock> selectByCode(String code) {
+		return stockMapper.selectByCode(code);
+	}
+
+	@Override
+	public List<String> selectGroupByCode() {
+		return stockMapper.selectGroupByCode();
+	}
+
+	@Override
+	public int insert(Strategy strategy) {
+		return strategyMapper.insert(strategy);
 	}
 
 }

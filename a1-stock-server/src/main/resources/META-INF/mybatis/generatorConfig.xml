@@ -25,5 +25,7 @@
 			targetProject="a1-stock-server" type="XMLMAPPER" />
 
 		<table schema="" tableName="stock" domainObjectName="Stock"></table>
+		<table schema="" tableName="strategy" domainObjectName="Strategy"></table>
+		
 	</context>
 </generatorConfiguration>

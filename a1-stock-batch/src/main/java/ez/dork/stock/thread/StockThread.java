@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 
-import ez.dork.stock.batch.Cron;
+import ez.dork.stock.batch.StockCron;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.queue.StockQueue;
 import ez.dork.stock.service.StockService;
@@ -35,7 +35,7 @@ public class StockThread extends Thread {
 	public void run() {
 		while (true) {
 			try {
-				StockQueue queue = Cron.STOCK_QUEUE.take();
+				StockQueue queue = StockCron.STOCK_QUEUE.take();
 				Calendar calendar = queue.getCalendar();
 				String stockCode = queue.getCode();
 				int kind = queue.getKind();
@@ -55,14 +55,14 @@ public class StockThread extends Thread {
 						if (kind == 0) { // 上市讀完, 改讀上櫃資料							
 							// 情況1.抓當月的上櫃資料
 							queue.setKind(1);
-							Cron.STOCK_QUEUE.add(queue);
+							StockCron.STOCK_QUEUE.add(queue);
 
 							// 情況2.仍有上櫃資料未抓
 							Calendar calendar2 = Calendar.getInstance();
 							calendar2.setTime(calendar.getTime());
 							calendar2.add(Calendar.MONTH, 1);
 							StockQueue queue2 = new StockQueue(queue.getCode(), calendar2, 1);
-							Cron.STOCK_QUEUE.add(queue2);
+							StockCron.STOCK_QUEUE.add(queue2);
 						}
 					} else {
 						for (int index = stockList.size() - 1; index > -1; index--) {
@@ -71,7 +71,7 @@ public class StockThread extends Thread {
 						}
 						calendar.add(Calendar.MONTH, -1);
 						queue.setCalendar(calendar);
-						Cron.STOCK_QUEUE.add(queue);
+						StockCron.STOCK_QUEUE.add(queue);
 					}
 
 				} catch (DuplicateKeyException e) {
@@ -82,12 +82,12 @@ public class StockThread extends Thread {
 							DATE_FORMAT.format(calendar.getTime()), kind));
 				} catch (Exception e) {
 					e.printStackTrace();
-					Cron.STOCK_QUEUE.add(queue);
+					StockCron.STOCK_QUEUE.add(queue);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (Cron.STOCK_QUEUE.isEmpty()) {
+			if (StockCron.STOCK_QUEUE.isEmpty()) {
 				break;
 			}
 		}

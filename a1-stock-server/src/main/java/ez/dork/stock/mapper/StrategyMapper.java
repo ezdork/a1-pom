@@ -101,4 +101,6 @@ public interface StrategyMapper {
 	List<Strategy> getStrategyList(@Param("code") String code);
 
 	List<EarnMoney> getAllStockOrderByEarnMoney();
+
+	void truncate();
 }

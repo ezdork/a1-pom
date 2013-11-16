@@ -68,4 +68,9 @@ public class StockServiceImpl implements StockService {
 		return strategyMapper.getAllStockOrderByEarnMoney();
 	}
 
+	@Override
+	public void truncate() {
+		strategyMapper.truncate();
+	}
+
 }

@@ -1,5 +1,6 @@
 package ez.dork.stock;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 
+import ez.dork.stock.batch.AnalysisCron;
+import ez.dork.stock.batch.StockCron;
 import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.Strategy;
@@ -20,6 +23,10 @@ public class StockController {
 
 	@Autowired
 	private StockService stockService;
+	@Autowired
+	private StockCron stockCron;
+	@Autowired
+	private AnalysisCron analysisCron;
 
 	@RequestMapping(value = "/getData")
 	public @ResponseBody
@@ -40,6 +47,18 @@ public class StockController {
 	String getAllStockOrderByEarnMoney() {
 		List<EarnMoney> resultList = stockService.getAllStockOrderByEarnMoney();
 		return new Gson().toJson(resultList);
+	}
+
+	@RequestMapping(value = "/activeStockCron")
+	public @ResponseBody
+	void activeStockCron() throws IOException {
+		stockCron.getStock();
+	}
+
+	@RequestMapping(value = "/activeAnalysisCron")
+	public @ResponseBody
+	void activeAnalysisCron() throws IOException {
+		analysisCron.analysisStock();
 	}
 
 }

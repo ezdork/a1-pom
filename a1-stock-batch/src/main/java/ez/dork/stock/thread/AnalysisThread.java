@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import ez.dork.stock.batch.Analysis;
+import ez.dork.stock.batch.AnalysisCron;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.service.StockService;
@@ -35,7 +35,7 @@ public class AnalysisThread extends Thread {
 
 	@Override
 	public void run() {
-		while (!Analysis.CODE_QUEUE.isEmpty()) {
+		while (!AnalysisCron.CODE_QUEUE.isEmpty()) {
 			alreadyBuy = false;
 			currentStock = null;
 			yesterDayStock = null;
@@ -44,19 +44,22 @@ public class AnalysisThread extends Thread {
 			amount = 0;
 
 			try {
-				String code = Analysis.CODE_QUEUE.take();
+				String code = AnalysisCron.CODE_QUEUE.take();
 				List<Stock> stockList = stockService.selectByCode(code);
 				for (Stock stock : stockList) {
 					currentStock = stock;
-					if (currentStock.getHigh() > highest) {
+					if (currentStock.getHigh().compareTo(highest) > 0) {
 						highest = currentStock.getHigh();
-						notOverHighDays = 0;
-					} else {
+					}
+
+					if (currentStock.getClose().compareTo(highest) <= 0) {
 						notOverHighDays++;
 					}
+
 					if (yesterDayStock != null) {
 						if (!alreadyBuy && wantBuy()) { // TODO 買進日期,價格,手續費
-
+							notOverHighDays = 0;
+							
 							double buyPrice = currentStock.getHigh();
 							amount = amount(buyPrice);
 

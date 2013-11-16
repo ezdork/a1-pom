@@ -21,5 +21,7 @@ public interface StockService {
 	List<Strategy> getStrategyList(String code);
 	
 	List<EarnMoney> getAllStockOrderByEarnMoney();
+
+	void truncate();
 	
 }

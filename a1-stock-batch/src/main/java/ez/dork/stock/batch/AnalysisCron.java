@@ -12,7 +12,7 @@ import ez.dork.stock.service.StockService;
 import ez.dork.stock.thread.AnalysisThread;
 
 @Component
-public class Analysis {
+public class AnalysisCron {
 
 	public static LinkedBlockingQueue<String> CODE_QUEUE = new LinkedBlockingQueue<String>();
 
@@ -23,7 +23,7 @@ public class Analysis {
 	private StockService stockService;
 
 	public void analysisStock() throws IOException {
-
+		stockService.truncate();
 		List<String> codeList = stockService.selectGroupByCode();
 		CODE_QUEUE.addAll(codeList);
 

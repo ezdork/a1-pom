@@ -43,7 +43,7 @@ function displayStockList(stockCode) {
 					selected : 1
 				},
 				title : {
-					text : stockCode + ' 歷史資料'
+					text : stockCode + ' 買賣歷史'
 				},
 				yAxis : [ {
 					title : {
@@ -126,12 +126,30 @@ function appendContainer(containerName){
 }
 
 $(function() {
+	accounting.settings = {
+		currency: {
+			symbol : "$",   // default currency symbol is '$'
+			format: "%s%v", // controls output: %s = symbol, %v = value/number (can be object: see below)
+			decimal : ".",  // decimal point separator
+			thousand: ",",  // thousands separator
+			precision : 0   // decimal places
+		},
+		number: {
+			precision : 0,  // default precision on numbers is 0
+			thousand: ",",
+			decimal : "."
+		}
+	};
+	var totalEarnMoney = 0;
 	$.getJSON('getAllStockOrderByEarnMoney.do', function(data) {
 		for ( var i = 0; i < data.length; i++) {
 			var code = $.trim(data[i]['code']);
-			var html = '<input type="button" onclick="displayStockList(\''+code+'\')" value="股票代號('+code+'), 賺錢:'+data[i]['earnMoney']+'">';
+			totalEarnMoney = totalEarnMoney + data[i]['earnMoney'];
+			var earnMoney = accounting.formatMoney(data[i]['earnMoney']);
+			var html = '<input type="button" onclick="displayStockList(\''+code+'\')" value="股票代號('+code+'), 獲利:'+earnMoney+'">';
 			$('#content').append(html);
 			appendContainer('container'+code);
 		}
+		$('#totalEarnMoney').val(accounting.formatMoney(totalEarnMoney));
 	});
 });

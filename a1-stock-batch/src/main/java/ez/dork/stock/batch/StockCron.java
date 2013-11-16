@@ -16,7 +16,7 @@ import ez.dork.stock.util.GovStockUtil;
 import ez.dork.stock.util.OrgStockUtil;
 
 @Component
-public class Cron {
+public class StockCron {
 
 	public static LinkedBlockingQueue<StockQueue> STOCK_QUEUE = new LinkedBlockingQueue<StockQueue>();
 

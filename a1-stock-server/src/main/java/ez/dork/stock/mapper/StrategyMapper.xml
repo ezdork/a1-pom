@@ -265,4 +265,8 @@
 		select code,sum(amount * price * 1000) earn_money from strategy group by code order by earn_money;
 	</select>
 	
+	<update id="truncate">
+		truncate table strategy;
+	</update>
+	
 </mapper>

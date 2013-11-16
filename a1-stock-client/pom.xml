@@ -7,13 +7,11 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>a1-stock-client</artifactId>
-
 	<dependencies>
 		<dependency>
 			<groupId>ez.dork</groupId>
-			<artifactId>a1-stock-server</artifactId>
+			<artifactId>a1-stock-batch</artifactId>
 			<version>${a1-stock.version}</version>
 		</dependency>
 	</dependencies>
-
 </project>

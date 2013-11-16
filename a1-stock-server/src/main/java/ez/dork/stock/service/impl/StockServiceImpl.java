@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.mapper.StockMapper;
@@ -55,6 +56,16 @@ public class StockServiceImpl implements StockService {
 	@Override
 	public int insert(Strategy strategy) {
 		return strategyMapper.insert(strategy);
+	}
+
+	@Override
+	public List<Strategy> getStrategyList(String code) {
+		return strategyMapper.getStrategyList(code);
+	}
+
+	@Override
+	public List<EarnMoney> getAllStockOrderByEarnMoney() {
+		return strategyMapper.getAllStockOrderByEarnMoney();
 	}
 
 }

@@ -30,12 +30,12 @@
 	</build>
 	<modules>
 		<module>a1-stock-server</module>
-		<module>a1-stock-client</module>
 		<module>a1-stock-supply</module>
 		<module>a1-stock-webservice</module>
 		<module>a1-stock-batch</module>
 		<module>a1-stock-ddl</module>
 		<module>a1-lib</module>
 		<module>a1-stock-war</module>
+		<module>a1-stock-client</module>
 	</modules>
 </project>

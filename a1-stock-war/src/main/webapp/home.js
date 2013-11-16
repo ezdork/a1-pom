@@ -1,5 +1,5 @@
 function displayStockList(stockCode) {
-	
+
 	var containerName = 'container'+stockCode;
 	appendContainer(containerName);
 	
@@ -16,98 +16,100 @@ function displayStockList(stockCode) {
 			};
 			analysisData.push(obj);
 		}
-	});
+		
+		$.getJSON('getData.do?stockCode=' + stockCode, function(data) {
 
-	$.getJSON('getData.do?stockCode=' + stockCode, function(data) {
+			// split the data set into ohlc and volume
+			var ohlc = [], volume = [], dataLength = data.length;
 
-		// split the data set into ohlc and volume
-		var ohlc = [], volume = [], dataLength = data.length;
+			for ( var i = 0; i < dataLength; i++) {
+				var datetime = parseToDateTime(data[i]['date']);
+				ohlc.push([ datetime, // the date
+				data[i]['open'], // open
+				data[i]['high'], // high
+				data[i]['low'], // low
+				data[i]['close'] // close
+				]);
 
-		for ( var i = 0; i < dataLength; i++) {
-			var datetime = parseToDateTime(data[i]['date']);
-			ohlc.push([ datetime, // the date
-			data[i]['open'], // open
-			data[i]['high'], // high
-			data[i]['low'], // low
-			data[i]['close'] // close
-			]);
+				volume.push([ datetime, // the date
+				data[i]['volumn'] // the volume
+				]);
+			}
 
-			volume.push([ datetime, // the date
-			data[i]['volumn'] // the volume
-			]);
-		}
+			// create the chart
+			$('#'+containerName).highcharts('StockChart', {
 
-		// create the chart
-		$('#'+containerName).highcharts('StockChart', {
-
-			rangeSelector : {
-				selected : 1
-			},
-			title : {
-				text : stockCode + ' 歷史資料'
-			},
-			yAxis : [ {
-				title : {
-					text : 'K線'
+				rangeSelector : {
+					selected : 1
 				},
-				height : 200,
-				lineWidth : 2
-			}, {
 				title : {
-					text : '成交量'
+					text : stockCode + ' 歷史資料'
 				},
-				top : 300,
-				height : 100,
-				offset : 0,
-				lineWidth : 2
-			} ],
+				yAxis : [ {
+					title : {
+						text : 'K線'
+					},
+					height : 200,
+					lineWidth : 2
+				}, {
+					title : {
+						text : '成交量'
+					},
+					top : 300,
+					height : 100,
+					offset : 0,
+					lineWidth : 2
+				} ],
 
-			tooltip : {
-				xDateFormat : '%Y-%m-%d',
-				shared : true
-			},
-			
-			plotOptions: {
-				candlestick:{
-				color: '#6adc3a',
-				upColor: '#f40117'
-						
-			}},
+				tooltip : {
+					xDateFormat : '%Y-%m-%d',
+					shared : true
+				},
+				
+				plotOptions: {
+					candlestick:{
+					color: '#6adc3a',
+					upColor: '#f40117'
+							
+				}},
 
-			series : [ {
-				type : 'candlestick',
-				name : stockCode,
-				data : ohlc,
-				id : 'flags',
-				dataGrouping:{enabled:false}
-			}, {
-				type : 'column',
-				name : 'Volume',
-				data : volume,
-				yAxis : 1,
-				dataGrouping:{enabled:false}
-			}, {
-				type : 'flags',
-				data : analysisData,
-				onSeries : 'flags',
-				shape : 'circlepin',
-				width : 16
-			}, {
-				type : 'flags',
-				data : [],
-				width : 15,
-				shape : 'squarepin'
+				series : [ {
+					type : 'candlestick',
+					name : stockCode,
+					data : ohlc,
+					id : 'flags',
+					dataGrouping:{enabled:false}
+				}, {
+					type : 'column',
+					name : 'Volume',
+					data : volume,
+					yAxis : 1,
+					dataGrouping:{enabled:false}
+				}, {
+					type : 'flags',
+					data : analysisData,
+					onSeries : 'flags',
+					shape : 'circlepin',
+					width : 16
+				}, {
+					type : 'flags',
+					data : [],
+					width : 15,
+					shape : 'squarepin'
 
-			}, {
-				type : 'flags',
-				data : [],
-				width : 5,
-				onSeries : '',
-				shape : 'circlepin'
+				}, {
+					type : 'flags',
+					data : [],
+					width : 5,
+					onSeries : '',
+					shape : 'circlepin'
 
-			} ]
+				} ]
+			});
 		});
 	});
+
+	
 }
 
 function parseToDateTime(str){
@@ -127,7 +129,7 @@ $(function() {
 	$.getJSON('getAllStockOrderByEarnMoney.do', function(data) {
 		for ( var i = 0; i < data.length; i++) {
 			var code = $.trim(data[i]['code']);
-			var html = '<input type="button" onclick="displayStockList('+code+')" value="股票代號('+code+'), 賺錢:'+data[i]['earnMoney']+'">';
+			var html = '<input type="button" onclick="displayStockList(\''+code+'\')" value="股票代號('+code+'), 賺錢:'+data[i]['earnMoney']+'">';
 			$('#content').append(html);
 			appendContainer('container'+code);
 		}

@@ -1,7 +1,7 @@
-function displayStockList(stockCode) {
+function displayStockList(stockCode, needFocus) {
 
 	var containerName = 'container'+stockCode;
-	appendContainer(containerName);
+	appendContainer(containerName, needFocus);
 	
 	var analysisData = [];
 	$.getJSON('getAnalysisData.do?stockCode=' + stockCode, function(data) {
@@ -119,9 +119,12 @@ function parseToDateTime(str){
 	return Date.UTC(yyyy, MM, dd);
 }
 
-function appendContainer(containerName){
+function appendContainer(containerName, needFocus){
 	if($('#'+containerName).length == 0){
 		$('#content').append('<div id="'+containerName+'" style="height: 500px; min-width: 500px"></div>');
+	}
+	if(needFocus){
+		$('#'+containerName+'Button').focus();	
 	}
 }
 
@@ -146,7 +149,7 @@ $(function() {
 			var code = $.trim(data[i]['code']);
 			totalEarnMoney = totalEarnMoney + data[i]['earnMoney'];
 			var earnMoney = accounting.formatMoney(data[i]['earnMoney']);
-			var html = '<input type="button" onclick="displayStockList(\''+code+'\')" value="股票代號('+code+'), 獲利:'+earnMoney+'">';
+			var html = '<input id="container'+code+'Button" type="button" onclick="displayStockList(\''+code+'\')" value="股票代號('+code+'), 獲利:'+earnMoney+'">';
 			$('#content').append(html);
 			appendContainer('container'+code);
 		}

@@ -30,6 +30,8 @@ public class AnalysisThread extends Thread {
 	int notOverHighDays = 0;
 	int amount = 0;
 
+	private Double[] a5 = new Double[5];
+
 	@Autowired
 	private StockService stockService;
 
@@ -46,20 +48,24 @@ public class AnalysisThread extends Thread {
 			try {
 				String code = AnalysisCron.CODE_QUEUE.take();
 				List<Stock> stockList = stockService.selectByCode(code);
+				int i = 0;
 				for (Stock stock : stockList) {
+					i++;
 					currentStock = stock;
 					if (currentStock.getHigh().compareTo(highest) > 0) {
 						highest = currentStock.getHigh();
 					}
+					a5[i % 5] = currentStock.getClose();
 
-					if (currentStock.getClose().compareTo(highest) <= 0) {
-						notOverHighDays++;
-					}
+					notOverHighDays++;
+					// if (currentStock.getHigh().compareTo(highest) > 0) {
+					// notOverHighDays = 0;
+					// }
 
 					if (yesterDayStock != null) {
 						if (!alreadyBuy && wantBuy()) { // TODO 買進日期,價格,手續費
 							notOverHighDays = 0;
-							
+
 							double buyPrice = currentStock.getHigh();
 							amount = amount(buyPrice);
 
@@ -80,7 +86,7 @@ public class AnalysisThread extends Thread {
 							strategy.setCode(currentStock.getCode());
 							strategy.setDate(currentStock.getDate());
 							strategy.setAmount(amount);
-							strategy.setPrice(currentStock.getLow());
+							strategy.setPrice(currentStock.getOpen());
 							stockService.insert(strategy);
 
 							System.out.println(strategy.getCode() + " : " + strategy.getDate() + ", "
@@ -104,15 +110,20 @@ public class AnalysisThread extends Thread {
 	}
 
 	private boolean wantSell() {
-		boolean result = false;
-		if (notOverHighDays == 3) {
-			result = true;
-			notOverHighDays = 0;
+		if (PriceUtil.average(a5).compareTo(currentStock.getClose()) > 0) {
+			return true;
 		}
-		return result;
+		return false;
+		// boolean result = false;
+		// if (notOverHighDays == 1) {
+		// result = true;
+		// notOverHighDays = 0;
+		// }
+		// return result;
 	}
 
 	private int amount(Double d) {
 		return (int) Math.floor(200 / d);
 	}
+
 }

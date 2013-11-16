@@ -1,6 +1,17 @@
 package ez.dork.stock.util;
 
 public class PriceUtil {
+
+	public static Double average(Double... doubles) {
+		Double total = 0d;
+		for (Double doubleValue : doubles) {
+			if (doubleValue != null) {
+				total = total + doubleValue;
+			}
+		}
+		return total / doubles.length;
+	}
+
 	public static Double getNextHighestPrice(Double price) {
 		double targetPrice = price * 1.07;
 		double stockStandard = getStockStandard(targetPrice);

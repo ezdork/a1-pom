@@ -1,26 +1,33 @@
 function displayStockList(stockCode, needFocus) {
 
-	var containerName = 'container'+stockCode;
+	var containerName = 'container' + stockCode;
 	appendContainer(containerName, needFocus);
-	
+
 	var analysisData = [];
 	$.getJSON('getAnalysisData.do?stockCode=' + stockCode, function(data) {
 		for ( var i = 0; i < data.length; i++) {
 
-			var price = data[i]['price']; 
 			var obj = {
-				x :  parseToDateTime(data[i]['date']),
-				title : price < 0 ? '<a style="font-size:12px">買</a>' : '<a style="font-size:12px">賣</a>',
-				text : price < 0 ? '買進點: '+(-1*price) : '賣出點: '+price,
-				color : price < 0 ? '#FF5050' : '#50FF50'
+				x : parseToDateTime(data[i]['buyDate']),
+				title : '<a style="font-size:12px">買</a>',
+				text : '買進點: ' + data[i]['buyPrice'],
+				color : '#FF5050'
+			};
+			analysisData.push(obj);
+			
+			obj = {
+				x : parseToDateTime(data[i]['sellDate']),
+				title : '<a style="font-size:12px">賣</a>',
+				text : '賣出點: ' + data[i]['sellPrice'],
+				color : '#50FF50'
 			};
 			analysisData.push(obj);
 		}
-		
+
 		$.getJSON('getData.do?stockCode=' + stockCode, function(data) {
 
 			// split the data set into ohlc and volume
-			var ohlc = [], volume = [], dataLength = data.length;
+			var ohlc = [], ma5 = [], volume = [], dataLength = data.length;
 
 			for ( var i = 0; i < dataLength; i++) {
 				var datetime = parseToDateTime(data[i]['date']);
@@ -31,13 +38,17 @@ function displayStockList(stockCode, needFocus) {
 				data[i]['close'] // close
 				]);
 
+				ma5.push([ datetime, // the date
+				data[i]['ma5'] // the volume
+				]);
+
 				volume.push([ datetime, // the date
 				data[i]['volumn'] // the volume
 				]);
 			}
 
 			// create the chart
-			$('#'+containerName).highcharts('StockChart', {
+			$('#' + containerName).highcharts('StockChart', {
 
 				rangeSelector : {
 					selected : 1
@@ -65,94 +76,109 @@ function displayStockList(stockCode, needFocus) {
 					xDateFormat : '%Y-%m-%d',
 					shared : true
 				},
-				
-				plotOptions: {
-					candlestick:{
-					color: '#6adc3a',
-					upColor: '#f40117'
-							
-				}},
+
+				plotOptions : {
+					candlestick : {
+						color : '#6adc3a',
+						upColor : '#f40117'
+					}
+				},
 
 				series : [ {
 					type : 'candlestick',
 					name : stockCode,
 					data : ohlc,
 					id : 'flags',
-					dataGrouping:{enabled:false}
+					dataGrouping : {
+						enabled : false
+					}
 				}, {
 					type : 'column',
 					name : 'Volume',
 					data : volume,
 					yAxis : 1,
-					dataGrouping:{enabled:false}
+					dataGrouping : {
+						enabled : false
+					}
+				}, {
+					type : 'line',
+					name : '前一天5日均線',
+					data : ma5,
+					color : '#1947A3',
+					yAxis : 0
 				}, {
 					type : 'flags',
 					data : analysisData,
 					onSeries : 'flags',
 					shape : 'circlepin',
 					width : 16
-				}, {
-					type : 'flags',
-					data : [],
-					width : 15,
-					shape : 'squarepin'
-
-				}, {
-					type : 'flags',
-					data : [],
-					width : 5,
-					onSeries : '',
-					shape : 'circlepin'
-
 				} ]
 			});
 		});
 	});
 
-	
 }
 
-function parseToDateTime(str){
+function parseToDateTime(str) {
 	var yyyy = str.substring(0, 4) - 0;
 	var MM = str.substring(4, 6) - 1;
 	var dd = str.substring(6, 8) - 0;
 	return Date.UTC(yyyy, MM, dd);
 }
 
-function appendContainer(containerName, needFocus){
-	if($('#'+containerName).length == 0){
-		$('#content').append('<div id="'+containerName+'" style="height: 500px; min-width: 500px"></div>');
+function appendContainer(containerName, needFocus) {
+	if ($('#' + containerName).length == 0) {
+		$('#content').append('<div id="' + containerName + '" style="height: 500px; min-width: 500px"></div>');
 	}
-	if(needFocus){
-		$('#'+containerName+'Button').focus();	
+	if (needFocus) {
+		$('#' + containerName + 'Button').focus();
 	}
 }
 
 $(function() {
 	accounting.settings = {
-		currency: {
-			symbol : "$",   // default currency symbol is '$'
-			format: "%s%v", // controls output: %s = symbol, %v = value/number (can be object: see below)
-			decimal : ".",  // decimal point separator
-			thousand: ",",  // thousands separator
-			precision : 0   // decimal places
+		currency : {
+			symbol : "$", // default currency symbol is '$'
+			format : "%s%v", // controls output: %s = symbol, %v =
+			// value/number (can be object: see below)
+			decimal : ".", // decimal point separator
+			thousand : ",", // thousands separator
+			precision : 0
+		// decimal places
 		},
-		number: {
-			precision : 0,  // default precision on numbers is 0
-			thousand: ",",
+		number : {
+			precision : 0, // default precision on numbers is 0
+			thousand : ",",
 			decimal : "."
 		}
 	};
+
+	// 買進價*1.425/1000+賣出價*1.425/1000+賣出價*3/1000
 	var totalEarnMoney = 0;
+	var totalFee = 0;
 	$.getJSON('getAllStockOrderByEarnMoney.do', function(data) {
 		for ( var i = 0; i < data.length; i++) {
 			var code = $.trim(data[i]['code']);
-			totalEarnMoney = totalEarnMoney + data[i]['earnMoney'];
-			var earnMoney = accounting.formatMoney(data[i]['earnMoney']);
-			var html = '<input id="container'+code+'Button" type="button" onclick="displayStockList(\''+code+'\')" value="股票代號('+code+'), 獲利:'+earnMoney+'">';
+			var earnMoney = data[i]['earnMoney'];
+			var fee = data[i]['fee'];
+
+			if(earnMoney){
+				totalEarnMoney = totalEarnMoney + earnMoney;
+			}
+			if(fee){
+				totalFee = totalFee + fee;
+			}
+
+			var formatEarnMoney = accounting.formatMoney(earnMoney);
+			var formatFee = accounting.formatMoney(fee);
+
+			var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="股票代號(' + code + ')\t獲利:' + formatEarnMoney + '\t手續費:' + formatFee
+					+ '">';
 			$('#content').append(html);
-			appendContainer('container'+code);
+			appendContainer('container' + code);
 		}
-		$('#totalEarnMoney').val(accounting.formatMoney(totalEarnMoney));
+
+		$('#totalEarnMoney').val(accounting.formatMoney(totalEarnMoney - totalFee));
+		$('#totalFee').val(accounting.formatMoney(totalFee));
 	});
 });

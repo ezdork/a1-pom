@@ -12,20 +12,47 @@ public class PriceUtil {
 		return total / doubles.length;
 	}
 
+	public static Double highest(Double... doubles) {
+		Double result = 0d;
+		for (Double doubleValue : doubles) {
+			if (doubleValue != null) {
+				result = doubleValue.compareTo(result) > 0 ? doubleValue : result;
+			}
+		}
+		return result;
+	}
+	public static Double lowest(Double... doubles) {
+		Double result = 0d;
+		for (Double doubleValue : doubles) {
+			if (doubleValue != null) {
+				result = doubleValue.compareTo(result) < 0 ? doubleValue : result;
+			}
+		}
+		return result;
+	}
+
 	public static Double getNextHighestPrice(Double price) {
 		double targetPrice = price * 1.07;
+		return getLowerPrice(targetPrice);
+	}
+
+	public static Double getLowerPrice(Double targetPrice) {
 		double stockStandard = getStockStandard(targetPrice);
 		return Math.floor(targetPrice * stockStandard) / stockStandard;
 	}
 
 	public static Double getNextLowestPrice(Double price) {
 		double targetPrice = price * 0.93;
+		return getHigherPrice(targetPrice);
+	}
+
+	public static Double getHigherPrice(Double targetPrice) {
 		double stockStandard = getStockStandard(targetPrice);
 		return Math.ceil(targetPrice * stockStandard) / stockStandard;
 	}
 
-	private static double getStockStandard(Double d) {
-		double stockStandard;
+	private static int getStockStandard(Double d) {
+		int stockStandard;
 		int intValue = d.intValue();
 		if (intValue < 10) {
 			// stockStandard = 0.01;

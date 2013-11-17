@@ -73,4 +73,9 @@ public class StockServiceImpl implements StockService {
 		strategyMapper.truncate();
 	}
 
+	@Override
+	public void update(Strategy strategy) {
+		strategyMapper.updateByPrimaryKey(strategy);
+	}
+
 }

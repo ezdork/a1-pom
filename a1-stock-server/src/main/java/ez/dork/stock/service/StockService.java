@@ -23,5 +23,7 @@ public interface StockService {
 	List<EarnMoney> getAllStockOrderByEarnMoney();
 
 	void truncate();
+
+	void update(Strategy strategy);
 	
 }

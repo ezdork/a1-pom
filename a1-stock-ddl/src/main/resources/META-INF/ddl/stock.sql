@@ -1,4 +1,4 @@
-﻿drop table stock;
+﻿drop table if exists stock;
 create table stock (
 code char(8),
 date char(8),

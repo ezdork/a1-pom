@@ -3,6 +3,7 @@ package ez.dork.stock.domain;
 public class EarnMoney {
 	private String code;
 	private Double earnMoney;
+	private Double fee;
 
 	public String getCode() {
 		return code;
@@ -20,9 +21,17 @@ public class EarnMoney {
 		this.earnMoney = earnMoney;
 	}
 
+	public Double getFee() {
+		return fee;
+	}
+
+	public void setFee(Double fee) {
+		this.fee = fee;
+	}
+
 	@Override
 	public String toString() {
-		return "EarnMoney [code=" + code + ", earnMoney=" + earnMoney + "]";
+		return "EarnMoney [code=" + code + ", earnMoney=" + earnMoney + ", fee=" + fee + "]";
 	}
 
 }

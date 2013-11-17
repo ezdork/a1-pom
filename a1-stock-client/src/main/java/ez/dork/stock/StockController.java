@@ -1,7 +1,10 @@
 package ez.dork.stock;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,7 @@ import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.service.StockService;
+import ez.dork.stock.util.PriceUtil;
 
 @Controller
 public class StockController {
@@ -31,7 +35,27 @@ public class StockController {
 	@RequestMapping(value = "/getData")
 	public @ResponseBody
 	String getData(@RequestParam("stockCode") String stockCode) {
-		List<Stock> resultList = stockService.selectByCode(stockCode);
+
+		Double[] ma5 = new Double[5];
+		List<Stock> stockList = stockService.selectByCode(stockCode);
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		int i = 0;
+		for (Stock stock : stockList) {
+			i++;
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("date", stock.getDate());
+			map.put("code", stock.getCode());
+			map.put("open", stock.getOpen());
+			map.put("high", stock.getHigh());
+			map.put("low", stock.getLow());
+			map.put("volumn", stock.getVolumn());
+			map.put("close", stock.getClose());
+
+			map.put("ma5", PriceUtil.average(ma5));
+			ma5[i % 5] = stock.getClose();
+
+			resultList.add(map);
+		}
 		return new Gson().toJson(resultList);
 	}
 
@@ -52,13 +76,17 @@ public class StockController {
 	@RequestMapping(value = "/activeStockCron")
 	public @ResponseBody
 	void activeStockCron() throws IOException {
-		stockCron.getStock();
+		if (StockCron.STOCK_QUEUE.isEmpty()) {
+			stockCron.getStock();
+		}
 	}
 
 	@RequestMapping(value = "/activeAnalysisCron")
 	public @ResponseBody
 	void activeAnalysisCron() throws IOException {
-		analysisCron.analysisStock();
+		if (AnalysisCron.CODE_QUEUE.isEmpty()) {
+			analysisCron.analysisStock();
+		}
 	}
 
 }

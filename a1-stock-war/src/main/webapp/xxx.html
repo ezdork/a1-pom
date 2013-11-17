@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>儒鴻(1476)</title>
+<link href="js/bootstrap/docs/assets/css/bootstrap.css" rel="stylesheet">
+<script type="text/javascript" src="js/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="xxx.js"></script>
+</head>
+<body onload="set()">
+	<script src="js/highstock/highstock.js"></script>
+	<script src="js/highstock/exporting.js"></script>
+	<button onclick="hide_line('8')" id="btn8" class="btn btn-danger">隱藏新高,新低</button>
+	<button onclick="hide_line('9')" id="btn9" class="btn btn-danger">隱藏漲跌停</button>
+	<button onclick="hide_line('10')" id="btn10" class="btn btn-danger">隱藏爆量</button>
+
+	<button onclick="hide_line('2')" id="btn2" class="btn btn-danger">隱藏5日均線</button>
+	<button onclick="hide_line('3')" id="btn3" class="btn btn-danger">隱藏10日均線</button>
+	<button onclick="hide_line('4')" id="btn4" class="btn btn-danger">隱藏20日均線</button>
+	<button onclick="hide_line('5')" id="btn5" class="btn btn-danger">隱藏60日均線</button>
+	<button onclick="hide_line('6')" id="btn6" class="btn btn-danger">隱藏120日均線</button>
+	<button onclick="hide_line('7')" id="btn7" class="btn btn-danger">隱藏240日均線</button>
+
+	<button onclick="hide_line('0')" id="btn0" class="btn btn-danger">隱藏燭狀圖</button>
+	<button onclick="hide_line('1')" id="btn1" class="btn btn-danger">隱藏成交量</button>
+	<div id="container" style="height: 450px; min-width: 100%"></div>
+</body>
+</html>
+
+
+<script>
+	var btn_name = new Array();
+	btn_name[0] = '燭狀圖';
+	btn_name[1] = '成交量';
+	btn_name[2] = '5日均線';
+	btn_name[3] = '10日均線';
+	btn_name[4] = '20日均線';
+	btn_name[5] = '60日均線';
+	btn_name[6] = '120日均線';
+	btn_name[7] = '240日均線';
+	btn_name[8] = '新高,新低';
+	btn_name[9] = '漲跌停';
+	btn_name[10] = '爆量';
+	function hide_line(v1) {
+
+		if (chart.series[v1].visible) {
+			chart.series[v1].hide();
+			document.getElementById('btn' + v1).innerHTML = '顯示' + btn_name[v1];
+			document.getElementById('btn' + v1).className = 'btn btn-success';
+		} else {
+			chart.series[v1].show();
+			document.getElementById('btn' + v1).innerHTML = '隱藏' + btn_name[v1];
+			document.getElementById('btn' + v1).className = 'btn btn-danger';
+		}
+
+	}
+	function set() {
+		hide_line('5');
+		hide_line('6');
+		hide_line('7');
+	}
+</script>

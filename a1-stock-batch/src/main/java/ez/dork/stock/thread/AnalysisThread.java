@@ -27,10 +27,12 @@ public class AnalysisThread extends Thread {
 	private Stock currentStock = null;
 	private Stock yesterDayStock = null;
 	private Double highest = 0d;
-	int notOverHighDays = 0;
 	int amount = 0;
 
-	private Double[] a5 = new Double[5];
+	private Double[] high240 = new Double[240];
+	private Double[] ma5 = new Double[5];
+	
+	private Strategy strategy = null;
 
 	@Autowired
 	private StockService stockService;
@@ -42,8 +44,10 @@ public class AnalysisThread extends Thread {
 			currentStock = null;
 			yesterDayStock = null;
 			highest = 0d;
-			notOverHighDays = 0;
 			amount = 0;
+
+			high240 = new Double[240];
+			ma5 = new Double[5];
 
 			try {
 				String code = AnalysisCron.CODE_QUEUE.take();
@@ -55,46 +59,19 @@ public class AnalysisThread extends Thread {
 					if (currentStock.getHigh().compareTo(highest) > 0) {
 						highest = currentStock.getHigh();
 					}
-					a5[i % 5] = currentStock.getClose();
 
-					notOverHighDays++;
-					// if (currentStock.getHigh().compareTo(highest) > 0) {
-					// notOverHighDays = 0;
-					// }
+					high240[i % 240] = currentStock.getHigh();
 
 					if (yesterDayStock != null) {
-						if (!alreadyBuy && wantBuy()) { // TODO 買進日期,價格,手續費
-							notOverHighDays = 0;
-
-							double buyPrice = currentStock.getHigh();
-							amount = amount(buyPrice);
-
-							Strategy strategy = new Strategy();
-							strategy.setCode(currentStock.getCode());
-							strategy.setDate(currentStock.getDate());
-							strategy.setAmount(amount);
-							strategy.setPrice(-1 * buyPrice);
-							stockService.insert(strategy);
-
-							System.out.println(strategy.getCode() + " : " + strategy.getDate() + ", "
-									+ strategy.getPrice());
+						if (!alreadyBuy && wantBuy()) { // 買進日期,價格,手續費
 							alreadyBuy = true;
-
-						} else if (alreadyBuy && wantSell()) { // TODO 賣出...
-
-							Strategy strategy = new Strategy();
-							strategy.setCode(currentStock.getCode());
-							strategy.setDate(currentStock.getDate());
-							strategy.setAmount(amount);
-							strategy.setPrice(currentStock.getOpen());
-							stockService.insert(strategy);
-
-							System.out.println(strategy.getCode() + " : " + strategy.getDate() + ", "
-									+ strategy.getPrice());
-
+							doBuy();
+						} else if (alreadyBuy && wantSell()) { // 賣出...
 							alreadyBuy = false;
+							doSell();
 						}
 					}
+					ma5[i % 5] = currentStock.getClose();
 					yesterDayStock = stock;
 				}
 			} catch (Exception e) {
@@ -105,21 +82,47 @@ public class AnalysisThread extends Thread {
 	}
 
 	private boolean wantBuy() {
+		Double currentHigh = currentStock.getHigh();
 		Double highStopPrice = PriceUtil.getNextHighestPrice(yesterDayStock.getClose());
-		return highest.compareTo(highStopPrice) == 0 && highest.compareTo(currentStock.getHigh()) == 0;
+		
+		Double comparedHigh = PriceUtil.highest(high240);
+//		Double comparedHigh = highest;
+		
+		return currentStock.getVolumn() > 10 && currentHigh.compareTo(highStopPrice) == 0
+				&& currentHigh.compareTo(comparedHigh) == 0;
+	}
+
+	private void doBuy() {
+
+		double buyPrice = currentStock.getHigh();
+		amount = amount(buyPrice);
+
+		strategy = new Strategy();
+		strategy.setCode(currentStock.getCode());
+		strategy.setBuyDate(currentStock.getDate());
+		strategy.setBuyPrice(buyPrice);
+		
+		strategy.setBuyAmount(amount);
+		
+		stockService.insert(strategy);
+
+		System.out.println(strategy);
 	}
 
 	private boolean wantSell() {
-		if (PriceUtil.average(a5).compareTo(currentStock.getClose()) > 0) {
-			return true;
-		}
-		return false;
-		// boolean result = false;
-		// if (notOverHighDays == 1) {
-		// result = true;
-		// notOverHighDays = 0;
-		// }
-		// return result;
+		return PriceUtil.average(ma5).compareTo(currentStock.getLow()) > 0;
+	}
+
+	private void doSell() {
+
+		strategy.setSellDate(currentStock.getDate());
+		strategy.setSellPrice(PriceUtil.getLowerPrice(PriceUtil.average(ma5))); // 用五日均賣掉
+		
+		strategy.setSellAmount(amount);
+		
+		stockService.update(strategy);
+
+		System.out.println(strategy);
 	}
 
 	private int amount(Double d) {

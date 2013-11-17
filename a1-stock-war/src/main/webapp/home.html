@@ -28,8 +28,10 @@
 		<input id="stockCode"
 			onchange="displayStockList($('#stockCode').val(),true);">
 		<input type="button" value="清空圖表" onclick="$('#content').empty();">
-		總獲利:
+		總獲利(扣除手續費):
 		<input id="totalEarnMoney" readonly="readonly">
+		手續費:
+		<input id="totalFee" readonly="readonly">
 		<input type="button" value="取得最新股票資料" onclick="$.get('activeStockCron.do')">
 		<input type="button" value="分析" onclick="$.get('activeAnalysisCron.do')">
 	</div>

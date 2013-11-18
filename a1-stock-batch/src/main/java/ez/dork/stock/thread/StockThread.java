@@ -43,7 +43,7 @@ public class StockThread extends Thread {
 				String format = DATE_FORMAT.format(calendar.getTime());
 				try {
 					if (queue.getEmptyTimes() == 3) {
-						System.out.println(String.format("%s : %s kind=>%d emptyTimes=3", stockCode, format, kind));
+						System.err.println(String.format("%s : %s kind=>%d emptyTimes=3", stockCode, format, kind));
 						continue;
 					}
 

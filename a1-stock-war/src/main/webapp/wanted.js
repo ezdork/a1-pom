@@ -3,8 +3,6 @@ function getWantedStockList(date, clearCache) {
 	var url = 'getWantedStockList.do?date=' + date;
 	if(clearCache){
 		url += '&clearCache=true';
-	} else {
-		url += '&clearCache=false';
 	}
 	$.getJSON(url, function(data) {
 		if (data) {

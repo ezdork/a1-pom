@@ -104,7 +104,8 @@ public class StockController {
 
 	@RequestMapping(value = "/getWantedStockList")
 	public @ResponseBody
-	String getWantedStockList(@RequestParam("date") String date, @RequestParam("clearCache") Boolean clearCache) {
+	String getWantedStockList(@RequestParam("date") String date,
+			@RequestParam(required = false, value = "clearCache", defaultValue = "false") Boolean clearCache) {
 
 		if (clearCache) {
 			wantedStockMap.clear();

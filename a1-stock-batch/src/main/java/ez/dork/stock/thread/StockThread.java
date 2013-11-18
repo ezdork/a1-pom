@@ -66,6 +66,7 @@ public class StockThread extends Thread {
 							StockCron.STOCK_QUEUE.add(queue2);
 						}
 					} else {
+						queue.setEmptyTimes(0);
 						for (int index = stockList.size() - 1; index > -1; index--) {
 							Stock stock = stockList.get(index);
 							stockService.insert(stock);

@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>接近漲停股票列表</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+<script type="text/javascript" src="wanted.js"></script>
+<style type="text/css">
+  #header {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1;
+  }
+  #content {
+  padding-top: 20px;
+  }
+  table{
+  float:left;
+  margin-right:30px;
+  border: 1px solid black;
+  }
+  th,td{
+  	border: 1px solid black;
+  }
+</style>
+</head>
+<body>
+	
+	<div id="header">
+		日期:
+		<input id="date" maxlength="8"
+			onchange="getWantedStockList($('#date').val());">
+		<input type="button" value="清空圖表" onclick="$('#content').empty();">
+		<input type="button" value="取得最新股票資料" onclick="$.get('activeStockCron.do')">
+		<input type="button" value="分析" onclick="$.get('activeAnalysisCron.do')">
+	</div>
+	
+	<div id="content"></div>
+</body>
+</html>

@@ -78,4 +78,27 @@ public class StockServiceImpl implements StockService {
 		strategyMapper.updateByPrimaryKey(strategy);
 	}
 
+	@Override
+	public Double getHighestPrice(String code, Calendar calendar, Integer howManyYears) {
+		if (calendar == null) {
+			calendar = Calendar.getInstance();
+		}
+		String beginDate = null;
+		String endDate = DATE_FORMAT.format(calendar.getTime());
+		if (howManyYears != null) {
+			calendar.add(Calendar.YEAR, -howManyYears);
+			beginDate = DATE_FORMAT.format(calendar.getTime());
+		}
+		Double result = stockMapper.getHighestPrice(code, beginDate, endDate);
+		if (result != null) {
+			return result;
+		} else {
+			return 0d;
+		}
+	}
+
+	@Override
+	public String getLatestStockDate() {
+		return stockMapper.getLatestStockDate();
+	}
 }

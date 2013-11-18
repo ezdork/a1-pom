@@ -31,8 +31,11 @@ public class AnalysisThread extends Thread {
 
 	private Double[] high240 = new Double[240];
 	private Double[] ma5 = new Double[5];
-	
+
 	private Strategy strategy = null;
+
+	private List<Stock> stockList = null;
+	int cursor = 0;
 
 	@Autowired
 	private StockService stockService;
@@ -51,16 +54,15 @@ public class AnalysisThread extends Thread {
 
 			try {
 				String code = AnalysisCron.CODE_QUEUE.take();
-				List<Stock> stockList = stockService.selectByCode(code);
-				int i = 0;
-				for (Stock stock : stockList) {
-					i++;
-					currentStock = stock;
+				stockList = stockService.selectByCode(code);
+				for (cursor = 0; cursor < stockList.size(); cursor++) {
+					currentStock = stockList.get(cursor);
+					
 					if (currentStock.getHigh().compareTo(highest) > 0) {
 						highest = currentStock.getHigh();
 					}
 
-					high240[i % 240] = currentStock.getHigh();
+					high240[cursor % 240] = currentStock.getHigh();
 
 					if (yesterDayStock != null) {
 						if (!alreadyBuy && wantBuy()) { // 買進日期,價格,手續費
@@ -71,8 +73,8 @@ public class AnalysisThread extends Thread {
 							doSell();
 						}
 					}
-					ma5[i % 5] = currentStock.getClose();
-					yesterDayStock = stock;
+					ma5[cursor % 5] = currentStock.getClose();
+					yesterDayStock = currentStock;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -84,11 +86,17 @@ public class AnalysisThread extends Thread {
 	private boolean wantBuy() {
 		Double currentHigh = currentStock.getHigh();
 		Double highStopPrice = PriceUtil.getNextHighestPrice(yesterDayStock.getClose());
-		
-		Double comparedHigh = PriceUtil.highest(high240);
-//		Double comparedHigh = highest;
-		
-		return currentStock.getVolumn() > 10 && currentHigh.compareTo(highStopPrice) == 0
+
+		// Calendar calendar = Calendar.getInstance();
+		// calendar.setTime(DATE_FORMAT.parse(currentStock.getDate()));
+		// Double comparedHigh =
+		// stockService.getHighestPrice(currentStock.getCode(), calendar, 1);
+
+		Double comparedHigh = PriceUtil.highest(stockList, cursor, 1);
+		// Double comparedHigh = PriceUtil.highest(high240);
+		// Double comparedHigh = highest;
+
+		return currentStock.getVolumn() > 200 && currentHigh.compareTo(highStopPrice) == 0
 				&& currentHigh.compareTo(comparedHigh) == 0;
 	}
 
@@ -101,9 +109,9 @@ public class AnalysisThread extends Thread {
 		strategy.setCode(currentStock.getCode());
 		strategy.setBuyDate(currentStock.getDate());
 		strategy.setBuyPrice(buyPrice);
-		
+
 		strategy.setBuyAmount(amount);
-		
+
 		stockService.insert(strategy);
 
 		System.out.println(strategy);
@@ -117,9 +125,9 @@ public class AnalysisThread extends Thread {
 
 		strategy.setSellDate(currentStock.getDate());
 		strategy.setSellPrice(PriceUtil.getLowerPrice(PriceUtil.average(ma5))); // 用五日均賣掉
-		
+
 		strategy.setSellAmount(amount);
-		
+
 		stockService.update(strategy);
 
 		System.out.println(strategy);

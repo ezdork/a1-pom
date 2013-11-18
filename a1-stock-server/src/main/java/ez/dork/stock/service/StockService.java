@@ -19,11 +19,15 @@ public interface StockService {
 	int insert(Strategy strategy);
 
 	List<Strategy> getStrategyList(String code);
-	
+
 	List<EarnMoney> getAllStockOrderByEarnMoney();
 
 	void truncate();
 
 	void update(Strategy strategy);
-	
+
+	Double getHighestPrice(String code, Calendar calendar, Integer howManyYears);
+
+	String getLatestStockDate();
+
 }

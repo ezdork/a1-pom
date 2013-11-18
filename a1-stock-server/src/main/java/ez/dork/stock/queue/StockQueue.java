@@ -10,12 +10,21 @@ public class StockQueue {
 	 * 0:GOV, 1:ORG
 	 */
 	private int kind;
+	private int emptyTimes;
 
 	public StockQueue(String code, Calendar calendar, int kind) {
 		super();
 		this.code = code;
 		this.calendar = calendar;
 		this.kind = kind;
+	}
+
+	public int getEmptyTimes() {
+		return emptyTimes;
+	}
+
+	public void setEmptyTimes(int emptyTimes) {
+		this.emptyTimes = emptyTimes;
 	}
 
 	public int getKind() {

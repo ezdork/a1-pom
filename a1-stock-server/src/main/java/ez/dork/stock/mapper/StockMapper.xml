@@ -337,5 +337,16 @@
 	<select id="selectGroupByCode" resultType="java.lang.String">
 		select code from stock group by code;
 	</select>
+
+	<select id="getHighestPrice" resultType="java.lang.Double">
+		select max(high) high
+		from stock
+		where code = #{code}
+		and date between #{beginDate} and #{endDate};
+	</select>
+	
+	<select id="getLatestStockDate" resultType="java.lang.String">
+		select max(date) date from stock;
+	</select>
 	
 </mapper>

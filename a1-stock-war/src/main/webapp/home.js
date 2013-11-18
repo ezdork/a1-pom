@@ -4,30 +4,37 @@ function displayStockList(stockCode, needFocus) {
 	appendContainer(containerName, needFocus);
 
 	var analysisData = [];
-	$.getJSON('getAnalysisData.do?stockCode=' + stockCode, function(data) {
-		for ( var i = 0; i < data.length; i++) {
+	$.getJSON('getAnalysisData.do?stockCode=' + stockCode, function(analysisResultData) {
+		for ( var i = 0; i < analysisResultData.length; i++) {
 
-			var obj = {
-				x : parseToDateTime(data[i]['buyDate']),
-				title : '<a style="font-size:12px">買</a>',
-				text : '買進點: ' + data[i]['buyPrice'],
-				color : '#FF5050'
-			};
-			analysisData.push(obj);
-			
-			obj = {
-				x : parseToDateTime(data[i]['sellDate']),
-				title : '<a style="font-size:12px">賣</a>',
-				text : '賣出點: ' + data[i]['sellPrice'],
-				color : '#50FF50'
-			};
-			analysisData.push(obj);
+			var buyDate = analysisResultData[i]['buyDate'];
+			if (buyDate) {
+				var obj = {
+					x : parseToDateTime(analysisResultData[i]['buyDate']),
+					title : '<a style="font-size:12px">買</a>',
+					text : '買進點: ' + analysisResultData[i]['buyPrice'],
+					color : '#FF5050'
+				};
+				analysisData.push(obj);
+			}
+
+			var sellDate = analysisResultData[i]['sellDate'];
+			if (sellDate) {
+				obj = {
+					x : parseToDateTime(sellDate),
+					title : '<a style="font-size:12px">賣</a>',
+					text : '賣出點: ' + analysisResultData[i]['sellPrice'],
+					color : '#50FF50'
+				};
+				analysisData.push(obj);
+			}
+
 		}
 
 		$.getJSON('getData.do?stockCode=' + stockCode, function(data) {
 
 			// split the data set into ohlc and volume
-			var ohlc = [], ma5 = [], volume = [], dataLength = data.length;
+			var ohlc = [], ma5 = [], ma10 = [], bias = [], volume = [], dataLength = data.length;
 
 			for ( var i = 0; i < dataLength; i++) {
 				var datetime = parseToDateTime(data[i]['date']);
@@ -40,6 +47,14 @@ function displayStockList(stockCode, needFocus) {
 
 				ma5.push([ datetime, // the date
 				data[i]['ma5'] // the volume
+				]);
+
+				ma10.push([ datetime, // the date
+				data[i]['ma10'] // the volume
+				]);
+
+				bias.push([ datetime, // the date
+				(((data[i]['ma5'] / data[i]['ma10'])) * 1) // the volume
 				]);
 
 				volume.push([ datetime, // the date
@@ -70,7 +85,24 @@ function displayStockList(stockCode, needFocus) {
 					height : 100,
 					offset : 0,
 					lineWidth : 2
-				} ],
+				}, { // Tertiary yAxis
+	                gridLineWidth: 0,
+	                title: {
+	                    text: '前一天5日均 / 前一天10日均',
+	                    style: {
+	                        color: '#AA4643'
+	                    }
+	                },
+	                labels: {
+	                    formatter: function() {
+	                        return this.value +' %';
+	                    },
+	                    style: {
+	                        color: '#AA4643'
+	                    }
+	                },
+	                opposite: true
+	            } ],
 
 				tooltip : {
 					xDateFormat : '%Y-%m-%d',
@@ -106,6 +138,21 @@ function displayStockList(stockCode, needFocus) {
 					data : ma5,
 					color : '#1947A3',
 					yAxis : 0
+				}, {
+					type : 'line',
+					name : '前一天10日均線',
+					data : ma10,
+					color : '#969696',
+					yAxis : 0
+				}, {
+					type : 'line',
+					name : '前一天5日均 / 前一天10日均',
+					data : bias,
+					color : '#AA4643',
+	                tooltip: {
+	                    valueSuffix: ' %'
+	                },
+					yAxis : 2
 				}, {
 					type : 'flags',
 					data : analysisData,
@@ -156,29 +203,32 @@ $(function() {
 	// 買進價*1.425/1000+賣出價*1.425/1000+賣出價*3/1000
 	var totalEarnMoney = 0;
 	var totalFee = 0;
+
 	$.getJSON('getAllStockOrderByEarnMoney.do', function(data) {
 		for ( var i = 0; i < data.length; i++) {
 			var code = $.trim(data[i]['code']);
 			var earnMoney = data[i]['earnMoney'];
 			var fee = data[i]['fee'];
 
-			if(earnMoney){
+			if (earnMoney) {
 				totalEarnMoney = totalEarnMoney + earnMoney;
 			}
-			if(fee){
+			if (fee) {
 				totalFee = totalFee + fee;
 			}
 
-			var formatEarnMoney = accounting.formatMoney(earnMoney);
+			var formatEarnMoney = accounting.formatMoney(earnMoney - fee);
 			var formatFee = accounting.formatMoney(fee);
 
-			var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="股票代號(' + code + ')\t獲利:' + formatEarnMoney + '\t手續費:' + formatFee
-					+ '">';
+			var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="股票代號(' + code + ')\t淨利(扣除手續費):' + formatEarnMoney + '\t手續費:'
+					+ formatFee + '">';
 			$('#content').append(html);
 			appendContainer('container' + code);
+
 		}
 
 		$('#totalEarnMoney').val(accounting.formatMoney(totalEarnMoney - totalFee));
 		$('#totalFee').val(accounting.formatMoney(totalFee));
+
 	});
 });

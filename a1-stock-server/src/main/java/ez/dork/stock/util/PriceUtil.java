@@ -1,5 +1,9 @@
 package ez.dork.stock.util;
 
+import java.util.List;
+
+import ez.dork.stock.domain.Stock;
+
 public class PriceUtil {
 
 	public static Double average(Double... doubles) {
@@ -12,6 +16,28 @@ public class PriceUtil {
 		return total / doubles.length;
 	}
 
+	public static Double highest(List<Stock> stockList, int cursor, Integer howManyYears) {
+		Stock stock = stockList.get(cursor);
+		String targetDate = "";
+		try {
+			Integer date = Integer.valueOf(stock.getDate());
+			targetDate = String.valueOf(date - (howManyYears * 10000));
+		} catch (Exception e) {
+			System.err.println(stock);
+		}
+
+		Double result = stock.getHigh();
+		for (int j = cursor; j > -1; j--) {
+			Stock cursorStock = stockList.get(j);
+			if (targetDate.compareTo(cursorStock.getDate()) > 0) {
+				break;
+			}
+			Double cursorResult = cursorStock.getHigh();
+			result = cursorResult.compareTo(result) > 0 ? cursorResult : result;
+		}
+		return result;
+	}
+
 	public static Double highest(Double... doubles) {
 		Double result = 0d;
 		for (Double doubleValue : doubles) {
@@ -21,6 +47,7 @@ public class PriceUtil {
 		}
 		return result;
 	}
+
 	public static Double lowest(Double... doubles) {
 		Double result = 0d;
 		for (Double doubleValue : doubles) {

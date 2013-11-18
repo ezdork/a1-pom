@@ -1,6 +1,12 @@
-function getWantedStockList(date) {
+function getWantedStockList(date, clearCache) {
 	$('#content').html('loading...');
-	$.getJSON('getWantedStockList.do?date=' + date, function(data) {
+	var url = 'getWantedStockList.do?date=' + date;
+	if(clearCache){
+		url += '&clearCache=true';
+	} else {
+		url += '&clearCache=false';
+	}
+	$.getJSON(url, function(data) {
 		if (data) {
 			$('#content').empty();
 			appendTable('resultList1', data);

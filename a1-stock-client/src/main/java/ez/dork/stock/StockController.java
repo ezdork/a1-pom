@@ -100,15 +100,21 @@ public class StockController {
 		return stockService.getLatestStockDate();
 	};
 
-	private Map<String, String> wantedStockList = new HashMap<String, String>();
+	private Map<String, String> wantedStockMap = new HashMap<String, String>();
 
 	@RequestMapping(value = "/getWantedStockList")
 	public @ResponseBody
-	String getWantedStockList(@RequestParam("date") String date) {
-		String string = wantedStockList.get(date);
-		if (string != null) {
-			return string;
+	String getWantedStockList(@RequestParam("date") String date, @RequestParam("clearCache") Boolean clearCache) {
+
+		if (clearCache) {
+			wantedStockMap.clear();
+		} else {
+			String string = wantedStockMap.get(date);
+			if (string != null) {
+				return string;
+			}
 		}
+
 		List<Stock> resultList1 = stockService.selectHeighestStockList(getWantedCalendar(date), 1);
 		List<Stock> resultList2 = stockService.selectHeighestStockList(getWantedCalendar(date), 2);
 		List<Stock> resultList3 = stockService.selectHeighestStockList(getWantedCalendar(date), 3);
@@ -144,7 +150,7 @@ public class StockController {
 		result.put("resultList10", formatList(resultList10));
 		result.put("resultListAll", formatList(resultListAll));
 		String json = new Gson().toJson(result);
-		wantedStockList.put(date, json);
+		wantedStockMap.put(date, json);
 		return json;
 	}
 

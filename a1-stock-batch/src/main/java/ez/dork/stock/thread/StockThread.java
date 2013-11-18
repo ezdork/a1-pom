@@ -40,14 +40,11 @@ public class StockThread extends Thread {
 				String stockCode = queue.getCode();
 				int kind = queue.getKind();
 
-				String format = DATE_FORMAT.format(calendar.getTime());
+				String formatDate = DATE_FORMAT.format(calendar.getTime());
+				String msg = String.format("%s : %s kind=>%d", stockCode, formatDate, kind);
 				try {
-					if (queue.getEmptyTimes() == 3) {
-						System.err.println(String.format("%s : %s kind=>%d emptyTimes=3", stockCode, format, kind));
-						continue;
-					}
 
-					System.out.println(String.format("%s : %s kind=>%d", stockCode, format, kind));
+					System.out.println(msg);
 					List<Stock> stockList = null;
 					if (kind == 0) {
 						stockList = GovStockUtil.getStockList(calendar, stockCode);
@@ -56,7 +53,14 @@ public class StockThread extends Thread {
 					}
 					if (stockList.isEmpty()) {
 						queue.setEmptyTimes(queue.getEmptyTimes() + 1);
-						System.err.println(String.format("%s : %s kind=>%d empty", stockCode, format, kind));
+
+						if (queue.getEmptyTimes() > 3) {
+							System.err.println(String.format("%s emptyTimes=>%d", msg, queue.getEmptyTimes()));
+							continue;
+						} else {
+							System.err.println(String.format("%s empty", msg));
+						}
+
 						if (kind == 0) { // 上市讀完, 改讀上櫃資料
 							// 先加一月 去得上櫃資料(空的三次可以接受)
 							Calendar calendar2 = Calendar.getInstance();
@@ -71,15 +75,14 @@ public class StockThread extends Thread {
 							Stock stock = stockList.get(index);
 							stockService.insert(stock);
 						}
-						calendar.add(Calendar.MONTH, -1);
-						queue.setCalendar(calendar);
-						StockCron.STOCK_QUEUE.add(queue);
 					}
+					calendar.add(Calendar.MONTH, -1);
+					StockCron.STOCK_QUEUE.add(queue);
 
 				} catch (DuplicateKeyException e) {
-					System.err.println(String.format("%s : %s kind=>%d already insert", stockCode, format, kind));
+					System.err.println(String.format("%s already insert", msg));
 				} catch (NumberFormatException e) {
-					System.err.println(String.format("%s : %s kind=>%d has no data", stockCode, format, kind));
+					System.err.println(String.format("%s has no data", msg));
 				} catch (Exception e) {
 					e.printStackTrace();
 					StockCron.STOCK_QUEUE.add(queue);

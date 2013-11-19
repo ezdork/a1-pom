@@ -27,15 +27,19 @@ public class StockCron {
 	private StockService stockService;
 
 	// @Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
-	public void getStock() throws IOException {
+	public void getStock(String wantScanStockCode) throws IOException {
 
-		List<String> codeList = GovStockUtil.getCodeList();
-		for (String stockCode : codeList) {
-			STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 0));
-		}
-		codeList = OrgStockUtil.getCodeList();
-		for (String stockCode : codeList) {
-			STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 1));
+		if (wantScanStockCode == null) {
+			List<String> codeList = GovStockUtil.getCodeList();
+			for (String stockCode : codeList) {
+				STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 0));
+			}
+			codeList = OrgStockUtil.getCodeList();
+			for (String stockCode : codeList) {
+				STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 1));
+			}
+		} else {
+			STOCK_QUEUE.add(new StockQueue(wantScanStockCode, Calendar.getInstance(), 0));
 		}
 
 		for (int i = 0; i < 20; i++) {

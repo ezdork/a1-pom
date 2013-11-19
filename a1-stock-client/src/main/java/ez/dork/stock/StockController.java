@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,10 +22,14 @@ import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.service.StockService;
+import ez.dork.stock.thread.WantedThread;
 import ez.dork.stock.util.PriceUtil;
 
 @Controller
 public class StockController {
+
+	@Autowired
+	private ApplicationContext ctx;
 
 	@Autowired
 	private StockService stockService;
@@ -39,6 +44,8 @@ public class StockController {
 
 		Double[] ma5 = new Double[5];
 		Double[] ma10 = new Double[10];
+		
+		Double[] high240 = new Double[240];
 		List<Stock> stockList = stockService.selectByCode(stockCode);
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		int i = 0;
@@ -53,6 +60,9 @@ public class StockController {
 			map.put("volumn", stock.getVolumn());
 			map.put("close", stock.getClose());
 
+			high240[i % 240] = stock.getClose();
+			map.put("high240", PriceUtil.highest(high240));
+			
 			map.put("ma5", PriceUtil.average(ma5));
 			ma5[i % 5] = stock.getClose();
 
@@ -80,9 +90,10 @@ public class StockController {
 
 	@RequestMapping(value = "/activeStockCron")
 	public @ResponseBody
-	void activeStockCron() throws IOException {
+	void activeStockCron(@RequestParam(required = false, value = "wantScanStockCode") String wantScanStockCode)
+			throws IOException {
 		if (StockCron.STOCK_QUEUE.isEmpty()) {
-			stockCron.getStock();
+			stockCron.getStock(wantScanStockCode);
 		}
 	}
 
@@ -105,7 +116,8 @@ public class StockController {
 	@RequestMapping(value = "/getWantedStockList")
 	public @ResponseBody
 	String getWantedStockList(@RequestParam("date") String date,
-			@RequestParam(required = false, value = "clearCache", defaultValue = "false") Boolean clearCache) {
+			@RequestParam(required = false, value = "clearCache", defaultValue = "false") Boolean clearCache)
+			throws InterruptedException {
 
 		if (clearCache) {
 			wantedStockMap.clear();
@@ -116,13 +128,51 @@ public class StockController {
 			}
 		}
 
-		List<Stock> resultList1 = stockService.selectHeighestStockList(getWantedCalendar(date), 1);
-		List<Stock> resultList2 = stockService.selectHeighestStockList(getWantedCalendar(date), 2);
-		List<Stock> resultList3 = stockService.selectHeighestStockList(getWantedCalendar(date), 3);
-		List<Stock> resultList5 = stockService.selectHeighestStockList(getWantedCalendar(date), 5);
-		List<Stock> resultList10 = stockService.selectHeighestStockList(getWantedCalendar(date), 10);
-		List<Stock> resultListAll = stockService.selectHeighestStockList(getWantedCalendar(date), null);
+		WantedThread wantedThread1 = ctx.getBean(WantedThread.class);
+		wantedThread1.setCalendar(getWantedCalendar(date));
+		wantedThread1.setHowManyYears(1);
+		wantedThread1.start();
 
+		WantedThread wantedThread2 = ctx.getBean(WantedThread.class);
+		wantedThread2.setCalendar(getWantedCalendar(date));
+		wantedThread2.setHowManyYears(2);
+		wantedThread2.start();
+
+		WantedThread wantedThread3 = ctx.getBean(WantedThread.class);
+		wantedThread3.setCalendar(getWantedCalendar(date));
+		wantedThread3.setHowManyYears(3);
+		wantedThread3.start();
+
+		WantedThread wantedThread5 = ctx.getBean(WantedThread.class);
+		wantedThread5.setCalendar(getWantedCalendar(date));
+		wantedThread5.setHowManyYears(5);
+		wantedThread5.start();
+
+		WantedThread wantedThread10 = ctx.getBean(WantedThread.class);
+		wantedThread10.setCalendar(getWantedCalendar(date));
+		wantedThread10.setHowManyYears(10);
+		wantedThread10.start();
+
+		WantedThread wantedThreadAll = ctx.getBean(WantedThread.class);
+		wantedThreadAll.setCalendar(getWantedCalendar(date));
+		wantedThreadAll.setHowManyYears(null);
+		wantedThreadAll.start();
+
+		wantedThread1.join();
+		wantedThread2.join();
+		wantedThread3.join();
+		wantedThread5.join();
+		wantedThread10.join();
+		wantedThreadAll.join();
+
+		List<Stock> resultList1 = wantedThread1.getResultList();
+		List<Stock> resultList2 = wantedThread2.getResultList();
+		List<Stock> resultList3 = wantedThread3.getResultList();
+		List<Stock> resultList5 = wantedThread5.getResultList();
+		List<Stock> resultList10 = wantedThread10.getResultList();
+		List<Stock> resultListAll = wantedThreadAll.getResultList();
+
+		// 移除重複的
 		resultList1.removeAll(resultList2);
 		resultList1.removeAll(resultList3);
 		resultList1.removeAll(resultList5);

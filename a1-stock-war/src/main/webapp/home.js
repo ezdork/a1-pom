@@ -1,10 +1,20 @@
-function displayStockList(stockCode, needFocus) {
+function displayStockList(stockCode, needFocus, event) {
 
+	if (event && event.keyCode != 13) {
+		return false; // returning false will prevent the event from bubbling
+		// up.
+	}
+
+	if ($('#container' + stockCode + 'Button').length == 0) {
+		appendButton(stockCode, '', '');
+	}
 	var containerName = 'container' + stockCode;
 	appendContainer(containerName, needFocus);
 
 	var analysisData = [];
+
 	$.getJSON('getAnalysisData.do?stockCode=' + stockCode, function(analysisResultData) {
+
 		for ( var i = 0; i < analysisResultData.length; i++) {
 
 			var buyDate = analysisResultData[i]['buyDate'];
@@ -34,7 +44,14 @@ function displayStockList(stockCode, needFocus) {
 		$.getJSON('getData.do?stockCode=' + stockCode, function(data) {
 
 			// split the data set into ohlc and volume
-			var ohlc = [], ma5 = [], ma10 = [], bias = [], volume = [], dataLength = data.length;
+			var ohlc = [], ma5 = [], ma10 = [], bias = [], high240 = [], volume = [], dataLength = data.length;
+
+			if (dataLength == 0) {
+				$('#container' + stockCode + 'Button').remove();
+				$('#container' + stockCode).remove();
+				alert('沒有' + stockCode + '資料');
+				return;
+			}
 
 			for ( var i = 0; i < dataLength; i++) {
 				var datetime = parseToDateTime(data[i]['date']);
@@ -55,6 +72,10 @@ function displayStockList(stockCode, needFocus) {
 
 				bias.push([ datetime, // the date
 				(((data[i]['ma5'] / data[i]['ma10'])) * 1) // the volume
+				]);
+
+				high240.push([ datetime, // the date
+				data[i]['high240'] // the volume
 				]);
 
 				volume.push([ datetime, // the date
@@ -85,24 +106,7 @@ function displayStockList(stockCode, needFocus) {
 					height : 100,
 					offset : 0,
 					lineWidth : 2
-				}, { // Tertiary yAxis
-	                gridLineWidth: 0,
-	                title: {
-	                    text: '前一天5日均 / 前一天10日均',
-	                    style: {
-	                        color: '#AA4643'
-	                    }
-	                },
-	                labels: {
-	                    formatter: function() {
-	                        return this.value +' %';
-	                    },
-	                    style: {
-	                        color: '#AA4643'
-	                    }
-	                },
-	                opposite: true
-	            } ],
+				} ],
 
 				tooltip : {
 					xDateFormat : '%Y-%m-%d',
@@ -146,13 +150,10 @@ function displayStockList(stockCode, needFocus) {
 					yAxis : 0
 				}, {
 					type : 'line',
-					name : '前一天5日均 / 前一天10日均',
-					data : bias,
-					color : '#AA4643',
-	                tooltip: {
-	                    valueSuffix: ' %'
-	                },
-					yAxis : 2
+					name : '一年最高收盤價',
+					data : high240,
+					color : '#DAA520',
+					yAxis : 0
 				}, {
 					type : 'flags',
 					data : analysisData,
@@ -162,6 +163,7 @@ function displayStockList(stockCode, needFocus) {
 				} ]
 			});
 		});
+
 	});
 
 }
@@ -180,6 +182,12 @@ function appendContainer(containerName, needFocus) {
 	if (needFocus) {
 		$('#' + containerName + 'Button').focus();
 	}
+}
+
+function appendButton(code, formatEarnMoney, formatFee) {
+	var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="股票代號(' + code + ')\t淨利(扣除手續費):' + formatEarnMoney + '\t手續費:' + formatFee
+			+ '">';
+	$('#content').append(html);
 }
 
 $(function() {
@@ -220,9 +228,7 @@ $(function() {
 			var formatEarnMoney = accounting.formatMoney(earnMoney - fee);
 			var formatFee = accounting.formatMoney(fee);
 
-			var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="股票代號(' + code + ')\t淨利(扣除手續費):' + formatEarnMoney + '\t手續費:'
-					+ formatFee + '">';
-			$('#content').append(html);
+			appendButton(code, formatEarnMoney, formatFee);
 			appendContainer('container' + code);
 
 		}

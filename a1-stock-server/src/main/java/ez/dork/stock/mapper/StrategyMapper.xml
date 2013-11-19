@@ -311,13 +311,12 @@
 
 	<select id="getAllStockOrderByEarnMoney" resultMap="EarnMoneyResultMap">
 		select code,
-		sum(((buy_amount * sell_price) - (sell_amount * buy_price)) * 1000)
+		sum(((sell_amount * sell_price) - (buy_amount * buy_price)) * 1000)
 		earn_money,
 		(sum(buy_amount * buy_price * 1.425) + sum(sell_amount *
 		sell_price * 4.425)) fee
 		from strategy where length(code) = 4
-		and code
-		!= '1808'
+		and code != '1808'
 		group by code order by earn_money;
 	</select>
 

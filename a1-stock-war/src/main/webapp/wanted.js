@@ -1,4 +1,9 @@
-function getWantedStockList(date, clearCache) {
+function getWantedStockList(date, clearCache, event) {
+
+	if(event && event.keyCode != 13){
+		return false; // returning false will prevent the event from bubbling up.
+	}
+
 	$('#content').html('loading...');
 	var url = 'getWantedStockList.do?date=' + date;
 	if(clearCache){

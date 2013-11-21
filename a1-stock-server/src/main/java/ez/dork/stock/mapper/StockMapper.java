@@ -104,7 +104,10 @@ public interface StockMapper {
 
 	List<String> selectGroupByCode();
 
-	Double getHighestPrice(@Param("code") String code, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
+	Double getHighestPrice(@Param("code") String code, @Param("beginDate") String beginDate,
+			@Param("endDate") String endDate);
 
 	String getLatestStockDate();
+
+	List<Stock> selectLast5(@Param("code") String code, @Param("date") String date);
 }

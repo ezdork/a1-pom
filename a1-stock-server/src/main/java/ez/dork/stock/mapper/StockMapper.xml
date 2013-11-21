@@ -330,5 +330,9 @@
 		select max(date) date
 		from stock;
 	</select>
+	
+	<select id="selectLast5" resultMap="BaseResultMap">
+		select * from stock where code = #{code} and date &lt;= #{date} order by date desc limit 5;
+	</select>
 
 </mapper>

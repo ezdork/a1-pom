@@ -32,5 +32,6 @@ public interface StockService {
 	String getLatestStockDate();
 
 	List<Strategy> selectCurrentBuyList(String date) throws ParseException;
-
+	
+	List<Stock> selectLast5(String code, String date);
 }

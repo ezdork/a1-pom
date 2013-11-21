@@ -325,8 +325,9 @@
 	</update>
 
 	<select id="selectCurrentBuyList" resultMap="BaseResultMap">
-		select * from strategy where #{addOneDay}
-		between buy_date and COALESCE(sell_date,#{addOneDay}) and length(code) = 4;
+		select * from strategy where #{date}
+		between buy_date and COALESCE(sell_date,#{addOneDay}) and length(code) = 4 
+		order by code;
 	</select>
 
 </mapper>

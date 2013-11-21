@@ -108,6 +108,11 @@ public class StockServiceImpl implements StockService {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(DATE_FORMAT.parse(date));
 		calendar.add(Calendar.DAY_OF_MONTH, 1);
-		return strategyMapper.selectCurrentBuyList(DATE_FORMAT.format(calendar.getTime()));
+		return strategyMapper.selectCurrentBuyList(date, DATE_FORMAT.format(calendar.getTime()));
+	}
+
+	@Override
+	public List<Stock> selectLast5(String code, String date) {
+		return stockMapper.selectLast5(code, date);
 	}
 }

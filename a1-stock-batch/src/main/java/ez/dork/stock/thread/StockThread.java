@@ -34,61 +34,57 @@ public class StockThread extends Thread {
 	@Override
 	public void run() {
 		while (!StockCron.STOCK_QUEUE.isEmpty()) {
+			StockQueue queue = StockCron.STOCK_QUEUE.poll();
+			Calendar calendar = queue.getCalendar();
+			String stockCode = queue.getCode();
+			int kind = queue.getKind();
+
+			String formatDate = DATE_FORMAT.format(calendar.getTime());
+			String msg = String.format("%s : %s kind=>%d", stockCode, formatDate, kind);
 			try {
-				StockQueue queue = StockCron.STOCK_QUEUE.take();
-				Calendar calendar = queue.getCalendar();
-				String stockCode = queue.getCode();
-				int kind = queue.getKind();
 
-				String formatDate = DATE_FORMAT.format(calendar.getTime());
-				String msg = String.format("%s : %s kind=>%d", stockCode, formatDate, kind);
-				try {
-
-					System.out.println(msg);
-					List<Stock> stockList = null;
-					if (kind == 0) {
-						stockList = GovStockUtil.getStockList(calendar, stockCode);
-					} else {
-						stockList = OrgStockUtil.getStockList(calendar, stockCode);
-					}
-					if (stockList.isEmpty()) {
-						queue.setEmptyTimes(queue.getEmptyTimes() + 1);
-
-						if (queue.getEmptyTimes() > 3) {
-							System.err.println(String.format("%s emptyTimes=>%d", msg, queue.getEmptyTimes()));
-							continue;
-						} else {
-							System.err.println(String.format("%s empty", msg));
-						}
-
-						if (kind == 0) { // 上市讀完, 改讀上櫃資料
-							// 先加一月 去得上櫃資料(空的三次可以接受)
-							Calendar calendar2 = Calendar.getInstance();
-							calendar2.setTime(calendar.getTime());
-							calendar2.add(Calendar.MONTH, 1);
-							StockQueue queue2 = new StockQueue(queue.getCode(), calendar2, 1);
-							StockCron.STOCK_QUEUE.add(queue2);
-						}
-					} else {
-						queue.setEmptyTimes(0);
-						for (int index = stockList.size() - 1; index > -1; index--) {
-							Stock stock = stockList.get(index);
-							stockService.insert(stock);
-						}
-					}
-					calendar.add(Calendar.MONTH, -1);
-					StockCron.STOCK_QUEUE.add(queue);
-
-				} catch (DuplicateKeyException e) {
-					System.err.println(String.format("%s already insert", msg));
-				} catch (NumberFormatException e) {
-					System.err.println(String.format("%s has no data", msg));
-				} catch (Exception e) {
-					e.printStackTrace();
-					StockCron.STOCK_QUEUE.add(queue);
+				System.out.println(msg);
+				List<Stock> stockList = null;
+				if (kind == 0) {
+					stockList = GovStockUtil.getStockList(calendar, stockCode);
+				} else {
+					stockList = OrgStockUtil.getStockList(calendar, stockCode);
 				}
-			} catch (InterruptedException e) {
+				if (stockList.isEmpty()) {
+					queue.setEmptyTimes(queue.getEmptyTimes() + 1);
+
+					if (queue.getEmptyTimes() > 3) {
+						System.err.println(String.format("%s emptyTimes=>%d", msg, queue.getEmptyTimes()));
+						continue;
+					} else {
+						System.err.println(String.format("%s empty", msg));
+					}
+
+					if (kind == 0) { // 上市讀完, 改讀上櫃資料
+						// 先加一月 去得上櫃資料(空的三次可以接受)
+						Calendar calendar2 = Calendar.getInstance();
+						calendar2.setTime(calendar.getTime());
+						calendar2.add(Calendar.MONTH, 1);
+						StockQueue queue2 = new StockQueue(queue.getCode(), calendar2, 1);
+						StockCron.STOCK_QUEUE.offer(queue2);
+					}
+				} else {
+					queue.setEmptyTimes(0);
+					for (int index = stockList.size() - 1; index > -1; index--) {
+						Stock stock = stockList.get(index);
+						stockService.insert(stock);
+					}
+				}
+				calendar.add(Calendar.MONTH, -1);
+				StockCron.STOCK_QUEUE.offer(queue);
+
+			} catch (DuplicateKeyException e) {
+				System.err.println(String.format("%s already insert", msg));
+			} catch (NumberFormatException e) {
+				System.err.println(String.format("%s has no data", msg));
+			} catch (Exception e) {
 				e.printStackTrace();
+				StockCron.STOCK_QUEUE.offer(queue);
 			}
 		}
 		System.out.println("done!");

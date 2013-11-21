@@ -1,5 +1,6 @@
 package ez.dork.stock.service.impl;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -100,5 +101,13 @@ public class StockServiceImpl implements StockService {
 	@Override
 	public String getLatestStockDate() {
 		return stockMapper.getLatestStockDate();
+	}
+
+	@Override
+	public List<Strategy> selectCurrentBuyList(String date) throws ParseException {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(DATE_FORMAT.parse(date));
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		return strategyMapper.selectCurrentBuyList(DATE_FORMAT.format(calendar.getTime()));
 	}
 }

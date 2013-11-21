@@ -57,7 +57,7 @@ public class AnalysisThread extends Thread {
 			ma10 = new Double[10];
 
 			try {
-				String code = AnalysisCron.CODE_QUEUE.take();
+				String code = AnalysisCron.CODE_QUEUE.poll();
 				stockList = stockService.selectByCode(code);
 				for (cursor = 0; cursor < stockList.size(); cursor++) {
 					currentStock = stockList.get(cursor);
@@ -78,6 +78,7 @@ public class AnalysisThread extends Thread {
 							doSell();
 						}
 					}
+
 					ma5[cursor % 5] = currentStock.getClose();
 					ma10[cursor % 10] = currentStock.getClose();
 					yesterDayStock = currentStock;
@@ -91,7 +92,7 @@ public class AnalysisThread extends Thread {
 
 	private boolean wantBuy() {
 		Double currentHigh = currentStock.getHigh();
-		Double highStopPrice = PriceUtil.getNextHighestPrice(yesterDayStock.getClose());
+		Double nextHighestPrice = PriceUtil.getNextHighestPrice(yesterDayStock.getClose());
 
 		// Calendar calendar = Calendar.getInstance();
 		// calendar.setTime(DATE_FORMAT.parse(currentStock.getDate()));
@@ -102,8 +103,9 @@ public class AnalysisThread extends Thread {
 		Double comparedHigh = PriceUtil.highest(high240);
 		// Double comparedHigh = highest;
 
-		return currentStock.getVolumn() > 100 && currentHigh.compareTo(highStopPrice) == 0
-				&& currentHigh.compareTo(comparedHigh) == 0 && PriceUtil.highest(high480).compareTo(comparedHigh) > 0;
+		return currentStock.getVolumn() > 100 && currentHigh.compareTo(nextHighestPrice) == 0
+				&& currentHigh.compareTo(comparedHigh) == 0;
+		// && PriceUtil.highest(high480).compareTo(comparedHigh) > 0;
 	}
 
 	private void doBuy() {
@@ -124,16 +126,43 @@ public class AnalysisThread extends Thread {
 	}
 
 	private boolean wantSell() {
-		return currentStock.getLow().compareTo(yesterDayStock.getLow()) < 0;
-		// return PriceUtil.average(ma5).compareTo(currentStock.getLow()) > 0;
+//		return currentStock.getLow().compareTo(yesterDayStock.getLow()) <= 0;
+//		 return currentStock.getLow().compareTo(PriceUtil.average(ma5)) <= 0;
+		
+		return PriceUtil.getNextLowestPrice(yesterDayStock.getClose()).compareTo(currentStock.getLow()) == 0
+				|| currentStock.getClose().compareTo(PriceUtil.average(ma5)) <= 0;
+		
+
+//		return PriceUtil.getNextLowestPrice(yesterDayStock.getClose()).compareTo(currentStock.getLow()) == 0
+//				|| currentStock.getLow().compareTo(PriceUtil.average(ma5)) <= 0;
 	}
 
 	private void doSell() {
 
 		strategy.setSellDate(currentStock.getDate());
-//		strategy.setSellPrice(PriceUtil.getLowerPrice(PriceUtil.average(ma5))); // 用五日均賣掉
-		strategy.setSellPrice(yesterDayStock.getLow());
+
+//		 strategy.setSellPrice(PriceUtil.getLowerPrice(PriceUtil.average(ma5)));//用五日均賣掉
+
+		if(PriceUtil.getNextLowestPrice(yesterDayStock.getClose()).compareTo(currentStock.getLow()) == 0){
+			strategy.setSellPrice(currentStock.getLow());
+		} else {
+			strategy.setSellPrice(currentStock.getClose());
+		}
 		
+
+//		if(PriceUtil.getNextLowestPrice(yesterDayStock.getClose()).compareTo(currentStock.getLow()) == 0){
+//			strategy.setSellPrice(currentStock.getLow());
+//		} else {
+//			strategy.setSellPrice(PriceUtil.getLowerPrice(PriceUtil.average(ma5)));
+//		}
+		
+//		if (currentStock.getHigh().compareTo(yesterDayStock.getLow()) > 0
+//				&& currentStock.getLow().compareTo(yesterDayStock.getLow()) < 0) {
+//			strategy.setSellPrice(yesterDayStock.getLow());
+//		} else {
+//			strategy.setSellPrice(currentStock.getOpen());
+//		}
+
 		strategy.setSellAmount(amount);
 
 		stockService.update(strategy);

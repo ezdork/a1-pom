@@ -1,6 +1,7 @@
 package ez.dork.stock;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -44,13 +45,16 @@ public class StockController {
 
 		Double[] ma5 = new Double[5];
 		Double[] ma10 = new Double[10];
-		
+
 		Double[] high240 = new Double[240];
+
 		List<Stock> stockList = stockService.selectByCode(stockCode);
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		int i = 0;
-		for (Stock stock : stockList) {
-			i++;
+
+		Stock yesterdayStock = null;
+		for (int i = 0; i < stockList.size(); i++) {
+			Stock stock = stockList.get(i);
+
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("date", stock.getDate());
 			map.put("code", stock.getCode());
@@ -62,14 +66,25 @@ public class StockController {
 
 			high240[i % 240] = stock.getClose();
 			map.put("high240", PriceUtil.highest(high240));
-			
+
 			map.put("ma5", PriceUtil.average(ma5));
 			ma5[i % 5] = stock.getClose();
 
 			map.put("ma10", PriceUtil.average(ma10));
 			ma10[i % 10] = stock.getClose();
 
+			if (yesterdayStock != null) {
+				if (PriceUtil.getNextHighestPrice(yesterdayStock.getClose()).compareTo(stock.getHigh()) == 0) {
+					map.put("highest", true);
+				}
+				if (PriceUtil.getNextLowestPrice(yesterdayStock.getClose()).compareTo(stock.getLow()) == 0) {
+					map.put("lowest", true);
+				}
+			}
+
 			resultList.add(map);
+
+			yesterdayStock = stock;
 		}
 		return new Gson().toJson(resultList);
 	}
@@ -117,7 +132,7 @@ public class StockController {
 	public @ResponseBody
 	String getWantedStockList(@RequestParam("date") String date,
 			@RequestParam(required = false, value = "clearCache", defaultValue = "false") Boolean clearCache)
-			throws InterruptedException {
+			throws InterruptedException, ParseException {
 
 		if (clearCache) {
 			wantedStockMap.clear();
@@ -192,6 +207,8 @@ public class StockController {
 		resultList5.removeAll(resultListAll);
 
 		resultList10.removeAll(resultListAll);
+		
+		List<Strategy> currentBuyList = stockService.selectCurrentBuyList(date);
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("resultList1", formatList(resultList1));
@@ -200,6 +217,7 @@ public class StockController {
 		result.put("resultList5", formatList(resultList5));
 		result.put("resultList10", formatList(resultList10));
 		result.put("resultListAll", formatList(resultListAll));
+		result.put("currentBuyList", currentBuyList);
 		String json = new Gson().toJson(result);
 		wantedStockMap.put(date, json);
 		return json;

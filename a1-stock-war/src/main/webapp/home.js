@@ -44,7 +44,7 @@ function displayStockList(stockCode, needFocus, event) {
 		$.getJSON('getData.do?stockCode=' + stockCode, function(data) {
 
 			// split the data set into ohlc and volume
-			var ohlc = [], ma5 = [], ma10 = [], bias = [], high240 = [], volume = [], dataLength = data.length;
+			var ohlc = [], ma5 = [], ma10 = [], bias = [], high240 = [], flags = [], volume = [], dataLength = data.length;
 
 			if (dataLength == 0) {
 				$('#container' + stockCode + 'Button').remove();
@@ -53,6 +53,7 @@ function displayStockList(stockCode, needFocus, event) {
 				return;
 			}
 
+			var flag = {};
 			for ( var i = 0; i < dataLength; i++) {
 				var datetime = parseToDateTime(data[i]['date']);
 				ohlc.push([ datetime, // the date
@@ -81,6 +82,36 @@ function displayStockList(stockCode, needFocus, event) {
 				volume.push([ datetime, // the date
 				data[i]['volumn'] // the volume
 				]);
+
+				if(data[i]['highest'] && data[i]['lowest']){
+					flag = {
+							x : datetime,
+							title : '<a style="font-size:14px">!!<br/></a>',
+							text : '<br/>曾經漲停又曾經跌停<br/>',
+							color : '#FFFFFF',
+							fillColor : '#DAA520'
+						};
+						flags.push(flag);
+				} else if (data[i]['highest']) {
+					flag = {
+						x : datetime,
+						title : '<a style="font-size:14px">漲<br/></a>',
+						text : '<br/>曾經漲停<br/>',
+						color : '#FFFFFF',
+						fillColor : '#FF5050'
+					};
+					flags.push(flag);
+				} else if (data[i]['lowest']) {
+					flag = {
+						x : datetime,
+						title : '<a style="font-size:14px">跌<br/></a>',
+						text : '<br/>曾經跌停<br/>',
+						color : '#FFFFFF',
+						fillColor : '#50FF50'
+					};
+					flags.push(flag);
+				}
+
 			}
 
 			// create the chart
@@ -102,10 +133,10 @@ function displayStockList(stockCode, needFocus, event) {
 					title : {
 						text : '成交量'
 					},
-					top : 300,
-					height : 100,
-					offset : 0,
-					lineWidth : 2
+			        top: 270,
+			        height: 100,
+			        offset: 0,
+			        lineWidth: 2
 				} ],
 
 				tooltip : {
@@ -154,6 +185,12 @@ function displayStockList(stockCode, needFocus, event) {
 					data : high240,
 					color : '#DAA520',
 					yAxis : 0
+				}, {
+					type : 'flags',
+					data : flags,
+					onSeries : '',
+					width : 15,
+					shape : 'squarepin'
 				}, {
 					type : 'flags',
 					data : analysisData,

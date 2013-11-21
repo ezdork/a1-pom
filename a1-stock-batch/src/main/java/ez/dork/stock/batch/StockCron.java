@@ -32,14 +32,14 @@ public class StockCron {
 		if (wantScanStockCode == null) {
 			List<String> codeList = GovStockUtil.getCodeList();
 			for (String stockCode : codeList) {
-				STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 0));
+				STOCK_QUEUE.offer(new StockQueue(stockCode, Calendar.getInstance(), 0));
 			}
 			codeList = OrgStockUtil.getCodeList();
 			for (String stockCode : codeList) {
-				STOCK_QUEUE.add(new StockQueue(stockCode, Calendar.getInstance(), 1));
+				STOCK_QUEUE.offer(new StockQueue(stockCode, Calendar.getInstance(), 1));
 			}
 		} else {
-			STOCK_QUEUE.add(new StockQueue(wantScanStockCode, Calendar.getInstance(), 0));
+			STOCK_QUEUE.offer(new StockQueue(wantScanStockCode, Calendar.getInstance(), 0));
 		}
 
 		for (int i = 0; i < 20; i++) {

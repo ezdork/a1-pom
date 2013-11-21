@@ -1,5 +1,6 @@
 package ez.dork.stock.service;
 
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -29,5 +30,7 @@ public interface StockService {
 	Double getHighestPrice(String code, Calendar calendar, Integer howManyYears);
 
 	String getLatestStockDate();
+
+	List<Strategy> selectCurrentBuyList(String date) throws ParseException;
 
 }

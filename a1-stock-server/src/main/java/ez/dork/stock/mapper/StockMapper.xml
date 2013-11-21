@@ -304,6 +304,7 @@
 		(select * from stock where date = #{endDate}) T2
 		where T1.code = T2.code
 		and T1.high between T2.close and T2.close*1.07
+		and T1.high != T2.close
 		and length(T2.code) = 4
 		order by T2.code;
 	</select>

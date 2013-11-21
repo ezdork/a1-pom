@@ -18,8 +18,29 @@ function getWantedStockList(date, clearCache, event) {
 			appendTable('resultList5', data);
 			appendTable('resultList10', data);
 			appendTable('resultListAll', data);
+			appendCurrentBuyTable('currentBuyList', data);
 		}
 	});
+}
+
+function appendCurrentBuyTable(tableId, data) {
+	var msg = '持有股票';
+	$('#content').append('<table id="' + tableId + '" ><THEAD><tr><td colspan="4">' + msg + 
+			'</td></tr><tr><td>股票代號</td><td>購買日期</td><td>購買價</td><td>張數</td></tr></THEAD></table>');
+	var $table = $('#' + tableId);
+	var list = data[tableId];
+	var length = list.length;
+	$table.append('<TBODY>');
+	for ( var i = 0; i < length; i++) {
+		var html = '<tr>';
+		html += '<td>' + list[i]['code'] + '</td>';
+		html += '<td>' + list[i]['buyDate'] + '</td>';
+		html += '<td>' + list[i]['buyPrice'] + '</td>';
+		html += '<td>' + list[i]['buyAmount'] + '</td>';
+		html += '</tr>';
+		$table.append(html);
+	}
+	$table.append('</TBODY>');
 }
 
 function appendTable(tableId, data) {

@@ -81,4 +81,6 @@ public interface StrategyMapper {
 	List<EarnMoney> getAllStockOrderByEarnMoney();
 
 	void truncate();
+
+	List<Strategy> selectCurrentBuyList(@Param("addOneDay") String addOneDay);
 }

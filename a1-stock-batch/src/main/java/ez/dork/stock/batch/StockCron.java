@@ -42,9 +42,18 @@ public class StockCron {
 			STOCK_QUEUE.offer(new StockQueue(wantScanStockCode, Calendar.getInstance(), 0));
 		}
 
-		for (int i = 0; i < 20; i++) {
+		int num = 20;
+		StockThread[] stockThreadArray = new StockThread[num];
+		for (int i = 0; i < num; i++) {
 			StockThread stockThread = ctx.getBean(StockThread.class);
+			stockThreadArray[i] = stockThread;
 			stockThread.start();
+		}
+		for(int i = 0; i < num; i++){
+			try {
+				stockThreadArray[i].join();
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 

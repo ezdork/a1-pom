@@ -110,6 +110,7 @@ public class StockController {
 		if (StockCron.STOCK_QUEUE.isEmpty()) {
 			stockCron.getStock(wantScanStockCode);
 		}
+		activeAnalysisCron();
 	}
 
 	@RequestMapping(value = "/activeAnalysisCron")

@@ -53,7 +53,7 @@ public class StockThread extends Thread {
 				if (stockList.isEmpty()) {
 					queue.setEmptyTimes(queue.getEmptyTimes() + 1);
 
-					if (queue.getEmptyTimes() > 3) {
+					if (queue.getEmptyTimes() >= 2) {
 						System.err.println(String.format("%s emptyTimes=>%d", msg, queue.getEmptyTimes()));
 						continue;
 					} else {

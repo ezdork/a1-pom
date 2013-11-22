@@ -27,14 +27,14 @@
 		股票代碼:
 		<input id="stockCode"
 			onkeyup="displayStockList($('#stockCode').val(),true,event);">
-		<input type="button" value="取得'指定'股票資料" onclick="$.get('activeStockCron.do?wantScanStockCode='+$('#stockCode').val())">
+		<input type="button" value="抓取'指定'股票資料" onclick="$.get('activeStockCron.do?wantScanStockCode='+$('#stockCode').val())">
 		總淨利(扣除手續費):
 		<input id="totalEarnMoney" readonly="readonly">
 		手續費:
 		<input id="totalFee" readonly="readonly">
 		交易次數:
 		<input id="tradeTimes" readonly="readonly">
-		<input type="button" value="取得最新股票資料" onclick="$.get('activeStockCron.do')">
+		<input type="button" value="抓取最新股票資料 並 分析" onclick="$.get('activeStockCron.do')">
 		<input type="button" value="分析" onclick="$.get('activeAnalysisCron.do')">
 	</div>
 	

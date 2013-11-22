@@ -19,25 +19,28 @@ function getWantedStockList(date, clearCache, event) {
 			appendTable('resultList5', data);
 			appendTable('resultList10', data);
 			appendTable('resultListAll', data);
-			appendCurrentBuyTable('currentBuyList', data);
+			appendCurrentBuyTable('currentBuyList', data, date);
 		}
 	});
 }
 
-function appendCurrentBuyTable(tableId, data) {
-	var msg = '持有股票';
+function appendCurrentBuyTable(tableId, data, date) {
+	var msg = date+'持有股票';
 	$('#content').append(
 			'<table id="' + tableId + '" ><THEAD><tr><td colspan="9">' + msg
 					+ '</td></tr><tr><td>股票代號</td><td>5日均</td><td>跌停價</td><td>張數</td><td>購買日期</td><td>購買價</td><td>現價</td><td>淨利</td><td>手續費</td></tr></THEAD></table>');
 	var $table = $('#' + tableId);
 	var list = data[tableId];
 	var length = list.length;
+	
+	var total = 0;
 	$table.append('<TBODY>');
 	for ( var i = 0; i < length; i++) {
 		
 		var earnMoney = list[i]['buyAmount'] * Math.floor((list[i]['nowPrice'] - list[i]['buyPrice']) * 1000);
 		var fee = list[i]['buyAmount'] * list[i]['nowPrice'] * 1.425 + list[i]['buyAmount'] * list[i]['nowPrice'] * 4.425;
 		
+		total += (earnMoney - fee);
 		var html = (earnMoney - fee)>0 ? '<tr style="color:red">' : '<tr style="color:green">';
 		html += '<td>' + list[i]['code'] + '</td>';
 		html += '<td>' + list[i]['ma5'] + '</td>';
@@ -51,6 +54,9 @@ function appendCurrentBuyTable(tableId, data) {
 		html += '</tr>';
 		$table.append(html);
 	}
+	var html = total>0 ? '<tr style="color:red">' : '<tr style="color:green">';
+	html += '<td colspan="9"> 總淨利: ' + accounting.formatMoney(total) + '</td>';
+	$table.append(html);
 	$table.append('</TBODY>');
 }
 

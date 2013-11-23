@@ -218,6 +218,9 @@ public class StockController {
 			map.put("buyDate", strategy.getBuyDate());
 			map.put("buyPrice", strategy.getBuyPrice());
 			map.put("buyAmount", strategy.getBuyAmount());
+			map.put("sellDate", strategy.getSellDate());
+			map.put("sellPrice", strategy.getSellPrice());
+			map.put("sellAmount", strategy.getSellAmount());
 			List<Stock> resultList = stockService.selectLast5(code, date);
 			Double[] doubleArray = new Double[5];
 			for (int i = 0; i < 5; i++) {

@@ -33,7 +33,7 @@ public class PriceUtil {
 				break;
 			}
 			Double cursorResult = cursorStock.getHigh();
-			result = cursorResult.compareTo(result) > 0 ? cursorResult : result;
+			result = (cursorResult.compareTo(result) > 0 ? cursorResult : result);
 		}
 		return result;
 	}
@@ -42,7 +42,7 @@ public class PriceUtil {
 		Double result = 0d;
 		for (Double doubleValue : doubles) {
 			if (doubleValue != null) {
-				result = doubleValue.compareTo(result) > 0 ? doubleValue : result;
+				result = (doubleValue.compareTo(result) > 0 ? doubleValue : result);
 			}
 		}
 		return result;
@@ -52,7 +52,7 @@ public class PriceUtil {
 		Double result = 0d;
 		for (Double doubleValue : doubles) {
 			if (doubleValue != null) {
-				result = doubleValue.compareTo(result) < 0 ? doubleValue : result;
+				result = (doubleValue.compareTo(result) < 0 ? doubleValue : result);
 			}
 		}
 		return result;

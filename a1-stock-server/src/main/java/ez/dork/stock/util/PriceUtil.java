@@ -6,6 +6,16 @@ import ez.dork.stock.domain.Stock;
 
 public class PriceUtil {
 
+	public static Double trueRage(Stock yesterdayStock, Stock currentStock) {
+		if (yesterdayStock == null) {
+			return 0d;
+		}
+		Double a = Math.abs(yesterdayStock.getClose() - currentStock.getHigh());
+		Double b = Math.abs(yesterdayStock.getClose() - currentStock.getLow());
+		Double c = currentStock.getHigh() - currentStock.getLow();
+		return highest(a, b, c);
+	}
+
 	public static Double average(Double... doubles) {
 		Double total = 0d;
 		for (Double doubleValue : doubles) {
@@ -49,7 +59,7 @@ public class PriceUtil {
 	}
 
 	public static Double lowest(Double... doubles) {
-		Double result = 0d;
+		Double result = 99999d;
 		for (Double doubleValue : doubles) {
 			if (doubleValue != null) {
 				result = (doubleValue.compareTo(result) < 0 ? doubleValue : result);

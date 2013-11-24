@@ -29,8 +29,10 @@ public class AnalysisThread extends Thread {
 	private Double highest = 0d;
 	int amount = 0;
 
-	private Double[] high240 = new Double[240];
-	private Double[] high480 = new Double[480];
+	int high240int = 240;
+	private Double[] high240 = new Double[high240int];
+	int high480int = 480;
+	private Double[] high480 = new Double[high480int];
 	private Double[] ma5 = new Double[5];
 	private Double[] ma10 = new Double[10];
 
@@ -51,23 +53,62 @@ public class AnalysisThread extends Thread {
 			highest = 0d;
 			amount = 0;
 
-			high240 = new Double[240];
-			high480 = new Double[480];
+			high240 = new Double[high240int];
+			high480 = new Double[high480int];
 			ma5 = new Double[5];
 			ma10 = new Double[10];
 
 			try {
 				String code = AnalysisCron.CODE_QUEUE.poll();
 				stockList = stockService.selectByCode(code);
+
 				for (cursor = 0; cursor < stockList.size(); cursor++) {
+					// currentStock = stockList.get(cursor);
+					// if ((cursor - 1) >= 0) {
+					// yesterDayStock = stockList.get(cursor - 1);
+					// }
+					// int nextDays = 7;
+					// if ((cursor + nextDays) < stockList.size() &&
+					// yesterDayStock != null) {
+					// Stock after5dayStock = stockList.get(cursor + nextDays);
+					// if (after5dayStock.getClose().compareTo(0d) == 0 ||
+					// currentStock.getClose().compareTo(0d) == 0) {
+					// continue;
+					// }
+					// if (new Double(1.30d).compareTo((after5dayStock.getLow()
+					// / currentStock.getHigh())) < 0
+					// &&
+					// PriceUtil.getNextHighestPrice(yesterDayStock.getClose()).compareTo(
+					// currentStock.getHigh()) == 0) {
+					//
+					// strategy = new Strategy();
+					// Double buyPrice = currentStock.getHigh();
+					// amount = amount(buyPrice);
+					// strategy.setCode(currentStock.getCode());
+					// strategy.setBuyDate(currentStock.getDate());
+					// strategy.setBuyPrice(buyPrice);
+					// strategy.setBuyAmount(amount);
+					//
+					// strategy.setSellDate(after5dayStock.getDate());
+					// strategy.setSellPrice(after5dayStock.getLow());
+					// strategy.setSellAmount(amount);
+					//
+					// stockService.insert(strategy);
+					// System.out.println(strategy);
+					//
+					// cursor = cursor + nextDays;
+					// }
+					//
+					// }
+
 					currentStock = stockList.get(cursor);
 
-					if (currentStock.getHigh().compareTo(highest) > 0) {
-						highest = currentStock.getHigh();
+					if (currentStock.getClose().compareTo(highest) > 0) {
+						highest = currentStock.getClose();
 					}
 
-					high240[cursor % 240] = currentStock.getClose();
-					high480[cursor % 480] = currentStock.getClose();
+					high240[cursor % high240int] = currentStock.getClose();
+					high480[cursor % high480int] = currentStock.getClose();
 
 					if (yesterDayStock != null) {
 						if (!alreadyBuy && wantBuy()) { // 買進日期,價格,手續費
@@ -78,7 +119,6 @@ public class AnalysisThread extends Thread {
 							doSell();
 						}
 					}
-
 					ma5[cursor % 5] = currentStock.getClose();
 					ma10[cursor % 10] = currentStock.getClose();
 					yesterDayStock = currentStock;
@@ -91,21 +131,17 @@ public class AnalysisThread extends Thread {
 	}
 
 	private boolean wantBuy() {
+		
 		Double currentHigh = currentStock.getHigh();
 		Double nextHighestPrice = PriceUtil.getNextHighestPrice(yesterDayStock.getClose());
 
-		// Calendar calendar = Calendar.getInstance();
-		// calendar.setTime(DATE_FORMAT.parse(currentStock.getDate()));
-		// Double comparedHigh =
-		// stockService.getHighestPrice(currentStock.getCode(), calendar, 1);
-
 		// Double comparedHigh = PriceUtil.highest(stockList, cursor, 1);
 		Double comparedHigh = PriceUtil.highest(high240);
-		// Double comparedHigh = highest;
+//		 Double comparedHigh = highest;
 
 		return currentStock.getVolumn() > 100 && currentHigh.compareTo(nextHighestPrice) == 0
 				&& currentHigh.compareTo(comparedHigh) >= 0;
-//				&& PriceUtil.highest(high480).compareTo(comparedHigh) > 0;
+		// && PriceUtil.highest(high480).compareTo(comparedHigh) > 0;
 	}
 
 	private void doBuy() {
@@ -126,6 +162,7 @@ public class AnalysisThread extends Thread {
 	}
 
 	private boolean wantSell() {
+
 		// return currentStock.getLow().compareTo(yesterDayStock.getLow()) <= 0;
 		// return currentStock.getLow().compareTo(PriceUtil.average(ma5)) <= 0;
 
@@ -143,7 +180,6 @@ public class AnalysisThread extends Thread {
 		strategy.setSellDate(currentStock.getDate());
 
 		// strategy.setSellPrice(PriceUtil.getLowerPrice(PriceUtil.average(ma5)));//用五日均賣掉
-
 		if (PriceUtil.getNextLowestPrice(yesterDayStock.getClose()).compareTo(currentStock.getLow()) == 0) {
 			strategy.setSellPrice(currentStock.getLow());
 		} else {

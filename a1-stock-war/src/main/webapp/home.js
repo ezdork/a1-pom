@@ -45,6 +45,8 @@ function displayStockList(stockCode, needFocus, event) {
 
 			// split the data set into ohlc and volume
 			var ohlc = [], ma5 = [], ma10 = [], bias = [], high240 = [], flags = [], volume = [], dataLength = data.length;
+			var before5days = [];
+			var low240 = [];
 
 			if (dataLength == 0) {
 				$('#container' + stockCode + 'Button').remove();
@@ -79,19 +81,27 @@ function displayStockList(stockCode, needFocus, event) {
 				data[i]['high240'] // the volume
 				]);
 
+				low240.push([ datetime, // the date
+				data[i]['low240'] // the volume
+				]);
+
+				before5days.push([ datetime, // the date
+				data[i]['before5days'] // the volume
+				]);
+
 				volume.push([ datetime, // the date
 				data[i]['volumn'] // the volume
 				]);
 
-				if(data[i]['highest'] && data[i]['lowest']){
+				if (data[i]['highest'] && data[i]['lowest']) {
 					flag = {
-							x : datetime,
-							title : '<a style="font-size:14px">!!<br/></a>',
-							text : '<br/>曾經漲停又曾經跌停<br/>',
-							color : '#FFFFFF',
-							fillColor : '#DAA520'
-						};
-						flags.push(flag);
+						x : datetime,
+						title : '<a style="font-size:14px">!!<br/></a>',
+						text : '<br/>曾經漲停又曾經跌停<br/>',
+						color : '#FFFFFF',
+						fillColor : '#DAA520'
+					};
+					flags.push(flag);
 				} else if (data[i]['highest']) {
 					flag = {
 						x : datetime,
@@ -127,16 +137,33 @@ function displayStockList(stockCode, needFocus, event) {
 					title : {
 						text : 'K線'
 					},
-					height : 200,
+					height : 400,
 					lineWidth : 2
 				}, {
 					title : {
 						text : '成交量'
 					},
-			        top: 270,
-			        height: 100,
-			        offset: 0,
-			        lineWidth: 2
+					top : 470,
+					height : 100,
+					offset : 0,
+					lineWidth : 2
+				}, { // Tertiary yAxis
+					gridLineWidth : 0,
+					title : {
+						text : 'before5days 漲幅',
+						style : {
+							color : '#AA4643'
+						}
+					},
+					labels : {
+						formatter : function() {
+							return this.value + ' ';
+						},
+						style : {
+							color : '#AA4643'
+						}
+					},
+					opposite : true
 				} ],
 
 				tooltip : {
@@ -181,8 +208,20 @@ function displayStockList(stockCode, needFocus, event) {
 					yAxis : 0
 				}, {
 					type : 'line',
+					name : 'before5days 漲幅',
+					data : before5days,
+					color : '#CC9999',
+					yAxis : 2
+				}, {
+					type : 'line',
 					name : '一年最高收盤價',
 					data : high240,
+					color : '#DAA520',
+					yAxis : 0
+				}, {
+					type : 'line',
+					name : '一年最低收盤價',
+					data : low240,
 					color : '#DAA520',
 					yAxis : 0
 				}, {
@@ -214,7 +253,7 @@ function parseToDateTime(str) {
 
 function appendContainer(containerName, needFocus) {
 	if ($('#' + containerName).length == 0) {
-		$('#content').append('<div id="' + containerName + '" style="height: 500px; min-width: 500px"></div>');
+		$('#content').append('<div id="' + containerName + '" style="height: 700px; min-width: 500px"></div>');
 	}
 	if (needFocus) {
 		$('#' + containerName + 'Button').focus();

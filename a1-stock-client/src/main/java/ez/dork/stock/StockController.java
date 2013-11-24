@@ -46,7 +46,8 @@ public class StockController {
 		Double[] ma5 = new Double[5];
 		Double[] ma10 = new Double[10];
 
-		Double[] high240 = new Double[240];
+		int closeInt = 240;
+		Double[] close = new Double[closeInt];
 
 		List<Stock> stockList = stockService.selectByCode(stockCode);
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
@@ -64,8 +65,12 @@ public class StockController {
 			map.put("volumn", stock.getVolumn());
 			map.put("close", stock.getClose());
 
-			high240[i % 240] = stock.getClose();
-			map.put("high240", PriceUtil.highest(high240));
+			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose()>0) ? stock.getHigh() / stockList.get(i - 5).getClose() : 0d;
+			map.put("before5days", before5days);
+
+			close[i % closeInt] = stock.getClose();
+			map.put("high240", PriceUtil.highest(close));
+			map.put("low240", PriceUtil.lowest(close));
 
 			map.put("ma5", PriceUtil.average(ma5));
 			ma5[i % 5] = stock.getClose();

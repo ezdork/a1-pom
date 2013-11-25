@@ -65,7 +65,8 @@ public class StockController {
 			map.put("volumn", stock.getVolumn());
 			map.put("close", stock.getClose());
 
-			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose()>0) ? stock.getHigh() / stockList.get(i - 5).getClose() : 0d;
+			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose() > 0) ? stock.getHigh()
+					/ stockList.get(i - 5).getClose() : 0d;
 			map.put("before5days", before5days);
 
 			close[i % closeInt] = stock.getClose();
@@ -229,7 +230,9 @@ public class StockController {
 			List<Stock> resultList = stockService.selectLast5(code, date);
 			Double[] doubleArray = new Double[5];
 			for (int i = 0; i < 5; i++) {
-				doubleArray[i] = resultList.get(i).getClose();
+				if (i < resultList.size()) {
+					doubleArray[i] = resultList.get(i).getClose();
+				}
 			}
 			map.put("ma5", PriceUtil.getLowerPrice(PriceUtil.average(doubleArray)));
 			Double close = resultList.get(0).getClose();

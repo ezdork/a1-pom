@@ -1,3 +1,11 @@
+function hideAlreadyBuy() {
+	$('#hideAlreadyBuy').is(':checked') ? $('.already_buy').hide() : $('.already_buy').show();
+}
+
+function hideNoBuy() {
+	$('#hideNoBuy').is(':checked') ? $('.no_buy').hide() : $('.no_buy').show();
+}
+
 function getWantedStockList(date, clearCache, event) {
 
 	if (event && event.keyCode != 13) {
@@ -119,9 +127,9 @@ function appendTable(tableId, data) {
 	$table.append('<TBODY>');
 
 	for ( var i = 0; i < length; i++) {
-		var html = list[i]['alreadyBuy'] ? '<tr style="color:blue">' : '<tr>';
+		var html = list[i]['alreadyBuy'] ? '<tr class="already_buy" style="color:blue">' : '<tr>';
 		if (list[i]['buyAmount'] == 0) {
-			html = '<tr style="color:#53B4EE">';
+			html = '<tr class="no_buy" style="color:#53B4EE">';
 		}
 		var code = $.trim(list[i]['code']);
 		html += '<td>' + stockMap[code] + '</td>';
@@ -141,7 +149,7 @@ $(function() {
 		for ( var i = 0; i < data.length; i++) {
 			try {
 				var code = $.trim(data[i]['code']);
-//				var name = $.trim(data[i]['name']);
+				// var name = $.trim(data[i]['name']);
 				var name = decodeURIComponent($.trim(data[i]['name']));
 				stockMap[code] = name;
 			} catch (e) {

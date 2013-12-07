@@ -35,6 +35,9 @@ th,td {
 	<div id="header">
 		日期:<input id="date" maxlength="8" onkeyup="getWantedStockList($('#date').val(),false,event);"> 
 		<input type="button" value="清除cache" onclick="getWantedStockList($('#date').val(),true);">
+		
+		<input type="checkbox" id="hideAlreadyBuy" onclick="hideAlreadyBuy()">隱藏已買
+		<input type="checkbox" id="hideNoBuy" onclick="hideNoBuy()">隱藏不買
 	</div>
 
 	<div id="content"></div>

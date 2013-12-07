@@ -50,7 +50,6 @@ public class StockController {
 	String selectAllStockName() throws UnsupportedEncodingException {
 		List<StockName> selectAllStockName = stockService.selectAllStockName();
 		for (StockName stockName : selectAllStockName) {
-			System.out.println(stockName.getName());
 			stockName.setName(java.net.URLEncoder.encode(stockName.getName().trim()));
 		}
 		return new Gson().toJson(selectAllStockName);

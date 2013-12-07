@@ -131,7 +131,7 @@ function displayStockList(stockCode, needFocus, event) {
 					selected : 1
 				},
 				title : {
-					text : stockMap[$.trim(stockCode)] + '(' +stockCode + ') 買賣歷史'
+					text : stockMap[$.trim(stockCode)] + '(' + stockCode + ') 買賣歷史'
 				},
 				yAxis : [ {
 					title : {
@@ -272,9 +272,13 @@ $(function() {
 
 	$.getJSON('selectAllStockName.do', function(data) {
 		for ( var i = 0; i < data.length; i++) {
-			var code = $.trim(data[i]['code']);
-			var name = decodeURIComponent($.trim(data[i]['name']));
-			stockMap[code] = name;
+			try {
+				var code = $.trim(data[i]['code']);
+//				var name = $.trim(data[i]['name']);
+				var name = decodeURIComponent($.trim(data[i]['name']));
+				stockMap[code] = name;
+			} catch (e) {
+			}
 		}
 
 		accounting.settings = {
@@ -323,7 +327,7 @@ $(function() {
 			$('#totalFee').val(accounting.formatMoney(totalFee));
 
 		});
-		
+
 	});
 
 });

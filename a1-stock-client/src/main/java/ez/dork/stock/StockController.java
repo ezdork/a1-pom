@@ -44,13 +44,12 @@ public class StockController {
 	@Autowired
 	private StockNameCron stockNameCron;
 
-	@SuppressWarnings("deprecation")
 	@RequestMapping(value = "/selectAllStockName")
 	public @ResponseBody
 	String selectAllStockName() throws UnsupportedEncodingException {
 		List<StockName> selectAllStockName = stockService.selectAllStockName();
 		for (StockName stockName : selectAllStockName) {
-			stockName.setName(java.net.URLEncoder.encode(stockName.getName().trim()));
+			stockName.setName(java.net.URLEncoder.encode(stockName.getName().trim(), "UTF8"));
 		}
 		return new Gson().toJson(selectAllStockName);
 	}

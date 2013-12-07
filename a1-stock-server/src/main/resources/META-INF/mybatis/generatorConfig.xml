@@ -26,6 +26,7 @@
 
 		<table schema="" tableName="stock" domainObjectName="Stock"></table>
 		<table schema="" tableName="strategy" domainObjectName="Strategy"></table>
+		<table schema="" tableName="stock_name" domainObjectName="StockName"></table>
 		
 	</context>
 </generatorConfiguration>

@@ -6,6 +6,7 @@ import java.util.List;
 
 import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 import ez.dork.stock.domain.Strategy;
 
 public interface StockService {
@@ -34,4 +35,8 @@ public interface StockService {
 	List<Strategy> selectCurrentBuyList(String date) throws ParseException;
 	
 	List<Stock> selectLast5(String code, String date);
+
+	int insert(StockName stockName);
+
+	List<StockName> selectAllStockName();
 }

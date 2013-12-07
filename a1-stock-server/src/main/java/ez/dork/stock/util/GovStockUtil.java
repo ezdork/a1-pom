@@ -21,6 +21,7 @@ import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import com.googlecode.jcsv.reader.internal.DefaultCSVEntryParser;
 
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 
 /**
  * 上市股票
@@ -45,7 +46,7 @@ public class GovStockUtil {
 		InputStream openStream = null;
 		try {
 			openStream = new URL(CATEGORY_ROOT_URL).openStream();
-			Document document = Jsoup.parse(openStream, "Big5", CATEGORY_ROOT_URL);
+			Document document = Jsoup.parse(openStream, "MS950", CATEGORY_ROOT_URL);
 			Elements elements = document.select("[name=STK] > option");
 			for (int index = 0; index < elements.size(); index++) {
 				Element element = elements.get(index);
@@ -76,7 +77,7 @@ public class GovStockUtil {
 		InputStream openStream = null;
 		try {
 			openStream = new URL(url).openStream();
-			Document doc = Jsoup.parse(openStream, "Big5", url);
+			Document doc = Jsoup.parse(openStream, "MS950", url);
 			Elements newsHeadlines = doc.select("a");
 			// System.out.println(doc);
 			for (int index = 0; index < newsHeadlines.size(); index++) {
@@ -131,6 +132,50 @@ public class GovStockUtil {
 	// return list;
 	// }
 
+	public static StockName getStockName(Calendar calendar, String stockCode) throws IOException {
+		String yyyyMM = DATE_FORMAT.format(calendar.getTime());
+		String url = String.format(URL, yyyyMM, yyyyMM, stockCode);
+
+		InputStream openStream = null;
+		InputStreamReader reader = null;
+		CSVReader<String[]> csvPersonReader = null;
+
+		try {
+			openStream = new URL(url).openStream();
+
+			reader = new InputStreamReader(openStream, "MS950");
+
+			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
+					.entryParser(new DefaultCSVEntryParser()).build();
+
+			List<String[]> stockList = csvPersonReader.readAll();
+			for (String[] row : stockList) {
+				StockName stockName = new StockName();
+				stockName.setCode(stockCode);
+				stockName.setKind(0);
+				String tmpName = row[0].replace("各日成交資訊(元,股)", "");
+				tmpName = tmpName.substring(tmpName.indexOf(stockCode) + stockCode.length()).trim();
+//				tmpName = new String(tmpName.getBytes("MS950"), "UTF8");
+				stockName.setName(tmpName);
+				return stockName;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (csvPersonReader != null) {
+				csvPersonReader.close();
+			}
+			if (reader != null) {
+				reader.close();
+			}
+			if (openStream != null) {
+				openStream.close();
+			}
+		}
+
+		return null;
+	}
+
 	public static List<Stock> getStockList(Calendar calendar, String stockCode) throws IOException {
 		String yyyyMM = DATE_FORMAT.format(calendar.getTime());
 		String url = String.format(URL, yyyyMM, yyyyMM, stockCode);
@@ -143,7 +188,7 @@ public class GovStockUtil {
 		try {
 			openStream = new URL(url).openStream();
 
-			reader = new InputStreamReader(openStream, "BIG5");
+			reader = new InputStreamReader(openStream, "MS950");
 
 			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
 					.entryParser(new DefaultCSVEntryParser()).build();
@@ -151,12 +196,11 @@ public class GovStockUtil {
 			List<String[]> stockList = csvPersonReader.readAll();
 			for (int index = 0; index < stockList.size(); index++) {
 				String[] row = stockList.get(index);
-
 				try {
 					Stock stock = new Stock();
-					
+
 					stock.setCode(stockCode);
-					
+
 					String date = String.valueOf(Integer.valueOf(row[0].trim().replace("/", "")) + 19110000);
 					stock.setDate(date); // 日期
 

@@ -1,6 +1,7 @@
 package ez.dork.stock;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,8 +20,10 @@ import com.google.gson.Gson;
 
 import ez.dork.stock.batch.AnalysisCron;
 import ez.dork.stock.batch.StockCron;
+import ez.dork.stock.batch.StockNameCron;
 import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.service.StockService;
 import ez.dork.stock.thread.WantedThread;
@@ -38,6 +41,27 @@ public class StockController {
 	private StockCron stockCron;
 	@Autowired
 	private AnalysisCron analysisCron;
+	@Autowired
+	private StockNameCron stockNameCron;
+
+	@SuppressWarnings("deprecation")
+	@RequestMapping(value = "/selectAllStockName")
+	public @ResponseBody
+	String selectAllStockName() throws UnsupportedEncodingException {
+		List<StockName> selectAllStockName = stockService.selectAllStockName();
+		for (StockName stockName : selectAllStockName) {
+			System.out.println(stockName.getName());
+			stockName.setName(java.net.URLEncoder.encode(stockName.getName().trim()));
+		}
+		return new Gson().toJson(selectAllStockName);
+	}
+
+	@RequestMapping(value = "/getStockName")
+	public @ResponseBody
+	void getStockName(@RequestParam(required = false, value = "wantKnowStockCode") String wantKnowStockCode)
+			throws IOException {
+		stockNameCron.getStockName(wantKnowStockCode);
+	}
 
 	@RequestMapping(value = "/getData")
 	public @ResponseBody

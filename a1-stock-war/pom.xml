@@ -8,6 +8,7 @@
 	</parent>
 	<artifactId>a1-stock-war</artifactId>
 	<packaging>war</packaging>
+
 	<dependencies>
 		<dependency>
 			<groupId>ez.dork</groupId>

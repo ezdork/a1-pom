@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 import ez.dork.stock.domain.Strategy;
 import ez.dork.stock.mapper.StockMapper;
+import ez.dork.stock.mapper.StockNameMapper;
 import ez.dork.stock.mapper.StrategyMapper;
 import ez.dork.stock.service.StockService;
 
@@ -23,7 +25,19 @@ public class StockServiceImpl implements StockService {
 	@Autowired
 	private StockMapper stockMapper;
 	@Autowired
+	private StockNameMapper stockNameMapper;
+	@Autowired
 	private StrategyMapper strategyMapper;
+
+	@Override
+	public List<StockName> selectAllStockName() {
+		return stockNameMapper.selectAll();
+	}
+	
+	@Override
+	public int insert(StockName stockName) {
+		return stockNameMapper.insert(stockName);
+	}
 
 	@Override
 	public int insert(Stock stock) {

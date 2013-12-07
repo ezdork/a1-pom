@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ez.dork.stock.domain.Stock;
-import ez.dork.stock.util.GovStockUtil;
+import ez.dork.stock.domain.StockName;
 
 public class GovStockUtilTest {
 
@@ -27,6 +27,15 @@ public class GovStockUtilTest {
 		for (Stock stock : stockList) {
 			System.out.println(stock);
 		}
+	}
+
+	@Test
+	public void testGetStockName() throws IOException {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2013);
+		calendar.set(Calendar.MONTH, 8);
+		StockName stockName = GovStockUtil.getStockName(calendar, "9946");
+		System.out.println(stockName);
 	}
 
 }

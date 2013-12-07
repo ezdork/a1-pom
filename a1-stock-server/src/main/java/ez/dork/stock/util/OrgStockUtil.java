@@ -22,6 +22,7 @@ import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import com.googlecode.jcsv.reader.internal.DefaultCSVEntryParser;
 
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 
 /**
  * 上櫃股票
@@ -48,6 +49,69 @@ public class OrgStockUtil {
 		return list;
 	}
 
+	public static StockName getStockName(Calendar calendar, String stockCode) throws IOException {
+		String yy = YY_FORMAT.format(calendar.getTime());
+		String mm = MM_FORMAT.format(calendar.getTime());
+
+		InputStream openStream = null;
+		InputStreamReader reader = null;
+		CSVReader<String[]> csvPersonReader = null;
+
+		try {
+			String charset = "MS950";
+			String query = String.format("yy=%s&mm=%s&stk_no=%s", URLEncoder.encode(yy, charset),
+					URLEncoder.encode(mm, charset), URLEncoder.encode(stockCode, charset));
+			String url = String.format("%s?%s", URL, query);
+
+			URLConnection connection = new URL(url).openConnection();
+			connection.setDoOutput(true); // Triggers POST.
+			connection.setRequestProperty("Accept-Charset", charset);
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
+			OutputStream output = connection.getOutputStream();
+			try {
+				output.write(query.getBytes(charset));
+			} finally {
+				try {
+					output.close();
+				} catch (IOException logOrIgnore) {
+				}
+			}
+			openStream = connection.getInputStream();
+
+			reader = new InputStreamReader(openStream, charset);
+
+			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
+					.entryParser(new DefaultCSVEntryParser()).build();
+
+			List<String[]> stockList = csvPersonReader.readAll();
+			try {
+				StockName stockName = new StockName();
+				stockName.setCode(stockCode);
+				stockName.setKind(1);
+				String tmpName = stockList.get(2)[1];
+//				tmpName = new String(tmpName.getBytes("MS950"), "UTF8");
+				stockName.setName(tmpName);
+				return stockName;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (csvPersonReader != null) {
+				csvPersonReader.close();
+			}
+			if (reader != null) {
+				reader.close();
+			}
+			if (openStream != null) {
+				openStream.close();
+			}
+		}
+
+		return null;
+	}
+
 	public static List<Stock> getStockList(Calendar calendar, String stockCode) throws IOException {
 		String yy = YY_FORMAT.format(calendar.getTime());
 		String mm = MM_FORMAT.format(calendar.getTime());
@@ -58,7 +122,7 @@ public class OrgStockUtil {
 
 		List<Stock> list = new ArrayList<Stock>();
 		try {
-			String charset = "BIG5";
+			String charset = "MS950";
 			String query = String.format("yy=%s&mm=%s&stk_no=%s", URLEncoder.encode(yy, charset),
 					URLEncoder.encode(mm, charset), URLEncoder.encode(stockCode, charset));
 			String url = String.format("%s?%s", URL, query);

@@ -131,7 +131,7 @@ function displayStockList(stockCode, needFocus, event) {
 					selected : 1
 				},
 				title : {
-					text : stockCode + ' 買賣歷史'
+					text : stockMap[$.trim(stockCode)] + '(' +stockCode + ') 買賣歷史'
 				},
 				yAxis : [ {
 					title : {
@@ -261,56 +261,69 @@ function appendContainer(containerName, needFocus) {
 }
 
 function appendButton(code, formatEarnMoney, formatFee) {
-	var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="股票代號(' + code + ')\t淨利(扣除手續費):' + formatEarnMoney + '\t手續費:' + formatFee
-			+ '">';
+	code = $.trim(code);
+	var html = '<input id="container' + code + 'Button" type="button" onclick="displayStockList(\'' + code + '\')" value="' + stockMap[code] + '(' + code + ')\t淨利(扣除手續費):' + formatEarnMoney
+			+ '\t手續費:' + formatFee + '">';
 	$('#content').append(html);
 }
 
+var stockMap = {};
 $(function() {
-	accounting.settings = {
-		currency : {
-			symbol : "$", // default currency symbol is '$'
-			format : "%s%v", // controls output: %s = symbol, %v =
-			// value/number (can be object: see below)
-			decimal : ".", // decimal point separator
-			thousand : ",", // thousands separator
-			precision : 0
-		// decimal places
-		},
-		number : {
-			precision : 0, // default precision on numbers is 0
-			thousand : ",",
-			decimal : "."
-		}
-	};
 
-	// 買進價*1.425/1000+賣出價*1.425/1000+賣出價*3/1000
-	var totalEarnMoney = 0;
-	var totalFee = 0;
-
-	$.getJSON('getAllStockOrderByEarnMoney.do', function(data) {
+	$.getJSON('selectAllStockName.do', function(data) {
 		for ( var i = 0; i < data.length; i++) {
 			var code = $.trim(data[i]['code']);
-			var earnMoney = data[i]['earnMoney'];
-			var fee = data[i]['fee'];
-
-			if (earnMoney) {
-				totalEarnMoney = totalEarnMoney + earnMoney;
-			}
-			if (fee) {
-				totalFee = totalFee + fee;
-			}
-
-			var formatEarnMoney = accounting.formatMoney(earnMoney - fee);
-			var formatFee = accounting.formatMoney(fee);
-
-			appendButton(code, formatEarnMoney, formatFee);
-			appendContainer('container' + code);
-
+			var name = decodeURIComponent($.trim(data[i]['name']));
+			stockMap[code] = name;
 		}
 
-		$('#totalEarnMoney').val(accounting.formatMoney(totalEarnMoney - totalFee));
-		$('#totalFee').val(accounting.formatMoney(totalFee));
+		accounting.settings = {
+			currency : {
+				symbol : "$", // default currency symbol is '$'
+				format : "%s%v", // controls output: %s = symbol, %v =
+				// value/number (can be object: see below)
+				decimal : ".", // decimal point separator
+				thousand : ",", // thousands separator
+				precision : 0
+			// decimal places
+			},
+			number : {
+				precision : 0, // default precision on numbers is 0
+				thousand : ",",
+				decimal : "."
+			}
+		};
 
+		// 買進價*1.425/1000+賣出價*1.425/1000+賣出價*3/1000
+		var totalEarnMoney = 0;
+		var totalFee = 0;
+
+		$.getJSON('getAllStockOrderByEarnMoney.do', function(data) {
+			for ( var i = 0; i < data.length; i++) {
+				var code = $.trim(data[i]['code']);
+				var earnMoney = data[i]['earnMoney'];
+				var fee = data[i]['fee'];
+
+				if (earnMoney) {
+					totalEarnMoney = totalEarnMoney + earnMoney;
+				}
+				if (fee) {
+					totalFee = totalFee + fee;
+				}
+
+				var formatEarnMoney = accounting.formatMoney(earnMoney - fee);
+				var formatFee = accounting.formatMoney(fee);
+
+				appendButton(code, formatEarnMoney, formatFee);
+				appendContainer('container' + code);
+
+			}
+
+			$('#totalEarnMoney').val(accounting.formatMoney(totalEarnMoney - totalFee));
+			$('#totalFee').val(accounting.formatMoney(totalFee));
+
+		});
+		
 	});
+
 });

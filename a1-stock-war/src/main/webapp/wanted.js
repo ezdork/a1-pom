@@ -28,8 +28,9 @@ function getWantedStockList(date, clearCache, event) {
 function appendCurrentSellTable(tableId, data, date) {
 	var msg = date+'賣出股票';
 	$('#content').append(
-			'<table id="' + tableId + '" ><THEAD><tr><td colspan="9">' + msg
+			'<table id="' + tableId + '" ><THEAD><tr><td colspan="10">' + msg
 					+ '</td></tr><tr>'
+					+'<td>名稱</td>'
 					+'<td>股票代號</td>'
 					+'<td>購買張數</td>'
 					+'<td>購買日期</td>'
@@ -53,7 +54,12 @@ function appendCurrentSellTable(tableId, data, date) {
 			
 			total += (earnMoney - fee);
 			var html = (earnMoney - fee)>0 ? '<tr style="color:red">' : '<tr style="color:green">';
-			html += '<td>' + list[i]['code'] + '</td>';
+			if(list[i]['buyAmount'] == 0){
+				html = '<tr style="color:#53B4EE">';
+			}
+			var code = $.trim(list[i]['code']);
+			html += '<td>' + stockMap[code] + '</td>';
+			html += '<td>' + code + '</td>';
 			html += '<td>' + list[i]['buyAmount'] + '</td>';
 			html += '<td>' + list[i]['buyDate'] + '</td>';
 			html += '<td>' + list[i]['buyPrice'] + '</td>';
@@ -67,7 +73,7 @@ function appendCurrentSellTable(tableId, data, date) {
 		}
 	}
 	var html = total>0 ? '<tr style="color:red">' : '<tr style="color:green">';
-	html += '<td colspan="9"> 總淨利: ' + accounting.formatMoney(total) + '</td>';
+	html += '<td colspan="10"> 總淨利: ' + accounting.formatMoney(total) + '</td>';
 	$table.append(html);
 	$table.append('</TBODY>');
 }
@@ -75,8 +81,8 @@ function appendCurrentSellTable(tableId, data, date) {
 function appendCurrentBuyTable(tableId, data, date) {
 	var msg = date+'持有股票';
 	$('#content').append(
-			'<table id="' + tableId + '" ><THEAD><tr><td colspan="9">' + msg
-					+ '</td></tr><tr><td>股票代號</td><td>5日均</td><td>跌停價</td><td>張數</td><td>購買日期</td><td>購買價</td><td>現價</td><td>淨利</td><td>手續費</td></tr></THEAD></table>');
+			'<table id="' + tableId + '" ><THEAD><tr><td colspan="10">' + msg
+					+ '</td></tr><tr><td>名稱</td><td>股票代號</td><td>5日均</td><td>跌停價</td><td>張數</td><td>購買日期</td><td>購買價</td><td>現價</td><td>淨利</td><td>手續費</td></tr></THEAD></table>');
 	var $table = $('#' + tableId);
 	var list = data[tableId];
 	var length = list.length;
@@ -92,7 +98,12 @@ function appendCurrentBuyTable(tableId, data, date) {
 		
 		total += (earnMoney - fee);
 		var html = (earnMoney - fee)>0 ? '<tr style="color:red">' : '<tr style="color:green">';
-		html += '<td>' + list[i]['code'] + '</td>';
+		if(list[i]['buyAmount'] == 0){
+			html = '<tr style="color:#53B4EE">';
+		}
+		var code = $.trim(list[i]['code']);
+		html += '<td>' + stockMap[code] + '</td>';
+		html += '<td>' + code + '</td>';
 		html += '<td>' + list[i]['ma5'] + '</td>';
 		html += '<td>' + list[i]['lowestPrice'] + '</td>';
 		html += '<td>' + list[i]['buyAmount'] + '</td>';
@@ -105,14 +116,14 @@ function appendCurrentBuyTable(tableId, data, date) {
 		$table.append(html);
 	}
 	var html = total>0 ? '<tr style="color:red">' : '<tr style="color:green">';
-	html += '<td colspan="9"> 總淨利: ' + accounting.formatMoney(total) + '</td>';
+	html += '<td colspan="10"> 總淨利: ' + accounting.formatMoney(total) + '</td>';
 	$table.append(html);
 	$table.append('</TBODY>');
 }
 
 function appendTable(tableId, data) {
-	var msg = '接近' + tableId.substring(10) + '年新高';
-	$('#content').append('<table id="' + tableId + '" ><THEAD><tr><td colspan="3">' + msg + '</td></tr><tr><td>股票代號</td><td>漲停價</td><td>張數</td></tr></THEAD></table>');
+	var msg = '接近' + tableId.substring(10) + '年新高股票';
+	$('#content').append('<table id="' + tableId + '" ><THEAD><tr><td colspan="4">' + msg + '</td></tr><tr><td>名稱</td><td>股票代號</td><td>漲停價</td><td>張數</td></tr></THEAD></table>');
 	var $table = $('#' + tableId);
 	var list = data[tableId];
 	var length = list.length;
@@ -120,7 +131,12 @@ function appendTable(tableId, data) {
 
 	for ( var i = 0; i < length; i++) {
 		var html = list[i]['alreadyBuy'] ? '<tr style="color:blue">' : '<tr>';
-		html += '<td>' + list[i]['code'] + '</td>';
+		if(list[i]['buyAmount'] == 0){
+			html = '<tr style="color:#53B4EE">';
+		}
+		var code = $.trim(list[i]['code']);
+		html += '<td>' + stockMap[code] + '</td>';
+		html += '<td>' + code + '</td>';
 		html += '<td>' + list[i]['nextHighestPrice'] + '</td>';
 		html += '<td>' + list[i]['buyAmount'] + '</td>';
 		html += '</tr>';
@@ -129,7 +145,17 @@ function appendTable(tableId, data) {
 	$table.append('</TBODY>');
 }
 
+var stockMap = {};
 $(function() {
+	
+	$.getJSON('selectAllStockName.do', function(data) {
+		for ( var i = 0; i < data.length; i++) {
+			var code = $.trim(data[i]['code']);
+			var name = decodeURIComponent($.trim(data[i]['name']));
+			stockMap[code] = name;
+		}
+	});
+	
 	accounting.settings = {
 			currency : {
 				symbol : "$", // default currency symbol is '$'

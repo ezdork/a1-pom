@@ -137,8 +137,8 @@ public class StockController {
 			throws IOException {
 		if (StockCron.STOCK_QUEUE.isEmpty()) {
 			stockCron.getStock(wantScanStockCode);
+			activeAnalysisCron();
 		}
-		activeAnalysisCron();
 	}
 
 	@RequestMapping(value = "/activeAnalysisCron")

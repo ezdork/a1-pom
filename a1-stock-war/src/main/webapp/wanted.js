@@ -29,6 +29,9 @@ function getWantedStockList(date, clearCache, event) {
 			appendTable('resultListAll', data);
 			appendCurrentBuyTable('currentBuyList', data, date);
 			appendCurrentSellTable('currentSellList', data, date);
+			
+			hideAlreadyBuy();
+			hideNoBuy();
 		}
 	});
 }

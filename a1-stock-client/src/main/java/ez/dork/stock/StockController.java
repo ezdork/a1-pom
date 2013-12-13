@@ -239,6 +239,7 @@ public class StockController {
 
 		List<Strategy> currentBuyList = stockService.selectCurrentBuyList(date);
 		List<Map<String, Object>> buyList = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> sellList = new ArrayList<Map<String, Object>>();
 		for (Strategy strategy : currentBuyList) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			String code = strategy.getCode();
@@ -260,24 +261,28 @@ public class StockController {
 			Double close = resultList.get(0).getClose();
 			map.put("lowestPrice", PriceUtil.getNextLowestPrice(close));
 			map.put("nowPrice", close);
-
-			buyList.add(map);
+			if (date.equals(map.get("sellDate"))) {
+				sellList.add(map);
+			} else {
+				buyList.add(map);
+			}
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("resultList1", formatList(resultList1, currentBuyList));
-		result.put("resultList2", formatList(resultList2, currentBuyList));
-		result.put("resultList3", formatList(resultList3, currentBuyList));
-		result.put("resultList5", formatList(resultList5, currentBuyList));
-		result.put("resultList10", formatList(resultList10, currentBuyList));
-		result.put("resultListAll", formatList(resultListAll, currentBuyList));
+		result.put("resultList1", formatList(resultList1, buyList));
+		result.put("resultList2", formatList(resultList2, buyList));
+		result.put("resultList3", formatList(resultList3, buyList));
+		result.put("resultList5", formatList(resultList5, buyList));
+		result.put("resultList10", formatList(resultList10, buyList));
+		result.put("resultListAll", formatList(resultListAll, buyList));
 		result.put("currentBuyList", buyList);
+		result.put("currentSellList", sellList);
 		String json = new Gson().toJson(result);
 		wantedStockMap.put(date, json);
 		return json;
 	}
 
-	private static List<Map<String, Object>> formatList(List<Stock> stockList, List<Strategy> currentBuyList) {
+	private static List<Map<String, Object>> formatList(List<Stock> stockList, List<Map<String, Object>> buyList) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		for (Stock stock : stockList) {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -286,8 +291,8 @@ public class StockController {
 			Double nextHighestPrice = PriceUtil.getNextHighestPrice(stock.getClose());
 			map.put("nextHighestPrice", nextHighestPrice);
 			map.put("buyAmount", Math.floor(200 / nextHighestPrice));
-			for (Strategy currentBuy : currentBuyList) {
-				if (stock.getCode().equals(currentBuy.getCode())) {
+			for (Map<String, Object> currentBuy : buyList) {
+				if (stock.getCode().equals(currentBuy.get("code"))) {
 					map.put("alreadyBuy", true);
 					break;
 				}

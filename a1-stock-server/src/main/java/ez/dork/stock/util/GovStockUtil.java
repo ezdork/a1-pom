@@ -35,6 +35,7 @@ public class GovStockUtil {
 	// private static final String KIND_URL =
 	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK_words.php?STK_NAME=%d";
 
+	private static final String CHARSET = "MS950";
 	private static final String CATEGORY_ROOT_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data_Top.htm";
 	private static final String CATEGORY_URL = "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK%s.php?STK=%s";
 
@@ -77,7 +78,7 @@ public class GovStockUtil {
 		InputStream openStream = null;
 		try {
 			openStream = new URL(url).openStream();
-			Document doc = Jsoup.parse(openStream, "MS950", url);
+			Document doc = Jsoup.parse(openStream, CHARSET, url);
 			Elements newsHeadlines = doc.select("a");
 			// System.out.println(doc);
 			for (int index = 0; index < newsHeadlines.size(); index++) {
@@ -143,7 +144,7 @@ public class GovStockUtil {
 		try {
 			openStream = new URL(url).openStream();
 
-			reader = new InputStreamReader(openStream, "MS950");
+			reader = new InputStreamReader(openStream, CHARSET);
 
 			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
 					.entryParser(new DefaultCSVEntryParser()).build();
@@ -155,7 +156,7 @@ public class GovStockUtil {
 				stockName.setKind(0);
 				String tmpName = row[0].replace("各日成交資訊(元,股)", "");
 				tmpName = tmpName.substring(tmpName.indexOf(stockCode) + stockCode.length()).trim();
-//				tmpName = new String(tmpName.getBytes("MS950"), "UTF8");
+//				tmpName = new String(tmpName.getBytes(CHARSET), "UTF8");
 				stockName.setName(tmpName);
 				return stockName;
 			}
@@ -188,7 +189,7 @@ public class GovStockUtil {
 		try {
 			openStream = new URL(url).openStream();
 
-			reader = new InputStreamReader(openStream, "MS950");
+			reader = new InputStreamReader(openStream, CHARSET);
 
 			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
 					.entryParser(new DefaultCSVEntryParser()).build();

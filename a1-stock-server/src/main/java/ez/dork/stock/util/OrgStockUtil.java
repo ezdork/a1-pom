@@ -32,11 +32,14 @@ import ez.dork.stock.domain.StockName;
  */
 public class OrgStockUtil {
 
+	private static final String CHARSET = "MS950";
 	private static final SimpleDateFormat YY_FORMAT = new SimpleDateFormat("yyyy");
 	private static final SimpleDateFormat MM_FORMAT = new SimpleDateFormat("MM");
 
 	private static final String KIND_URL = "http://www.otc.org.tw/ch/inc/stksum_twce.php";
-	private static final String URL = "http://www.otc.org.tw/ch/stock/aftertrading/daily_trading_info/download_st43.php";
+	// private static final String URL =
+	// "http://www.otc.org.tw/ch/stock/aftertrading/daily_trading_info/download_st43.php";
+	private static final String URL = "http://www.otc.org.tw/ch/stock/aftertrading/daily_trading_info/st43_download.php?d=%s/%s&stkno=%s&s=0,asc,0";
 
 	public static List<String> getCodeList() throws IOException {
 		Document doc = Jsoup.connect(KIND_URL).get();
@@ -50,7 +53,7 @@ public class OrgStockUtil {
 	}
 
 	public static StockName getStockName(Calendar calendar, String stockCode) throws IOException {
-		String yy = YY_FORMAT.format(calendar.getTime());
+		String yy = String.valueOf((Integer.valueOf(YY_FORMAT.format(calendar.getTime())) - 1911));
 		String mm = MM_FORMAT.format(calendar.getTime());
 
 		InputStream openStream = null;
@@ -58,27 +61,35 @@ public class OrgStockUtil {
 		CSVReader<String[]> csvPersonReader = null;
 
 		try {
-			String charset = "MS950";
-			String query = String.format("yy=%s&mm=%s&stk_no=%s", URLEncoder.encode(yy, charset),
-					URLEncoder.encode(mm, charset), URLEncoder.encode(stockCode, charset));
-			String url = String.format("%s?%s", URL, query);
+			// String query = String.format("yy=%s&mm=%s&stk_no=%s",
+			// URLEncoder.encode(yy, charset),
+			// URLEncoder.encode(mm, charset), URLEncoder.encode(stockCode,
+			// charset));
+			// String url = String.format("%s?%s", URL, query);
+			//
+			// URLConnection connection = new URL(url).openConnection();
+			// connection.setDoOutput(true); // Triggers POST.
+			// connection.setRequestProperty("Accept-Charset", charset);
+			// connection.setRequestProperty("Content-Type",
+			// "application/x-www-form-urlencoded;charset=" + charset);
+			// OutputStream output = connection.getOutputStream();
+			// try {
+			// output.write(query.getBytes(charset));
+			// } finally {
+			// try {
+			// output.close();
+			// } catch (IOException logOrIgnore) {
+			// }
+			// }
+			// openStream = connection.getInputStream();
+			//
+			// reader = new InputStreamReader(openStream, charset);
 
-			URLConnection connection = new URL(url).openConnection();
-			connection.setDoOutput(true); // Triggers POST.
-			connection.setRequestProperty("Accept-Charset", charset);
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
-			OutputStream output = connection.getOutputStream();
-			try {
-				output.write(query.getBytes(charset));
-			} finally {
-				try {
-					output.close();
-				} catch (IOException logOrIgnore) {
-				}
-			}
-			openStream = connection.getInputStream();
+			String url = String.format(URL, yy, mm, stockCode);
 
-			reader = new InputStreamReader(openStream, charset);
+			openStream = new URL(url).openStream();
+
+			reader = new InputStreamReader(openStream, CHARSET);
 
 			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
 					.entryParser(new DefaultCSVEntryParser()).build();
@@ -88,8 +99,9 @@ public class OrgStockUtil {
 				StockName stockName = new StockName();
 				stockName.setCode(stockCode);
 				stockName.setKind(1);
-				String tmpName = stockList.get(2)[1];
-//				tmpName = new String(tmpName.getBytes("MS950"), "UTF8");
+				String tmpName = stockList.get(2)[0].replace("股票名稱:", "");
+//				String tmpName = stockList.get(2)[1];
+				// tmpName = new String(tmpName.getBytes(CHARSET), "UTF8");
 				stockName.setName(tmpName);
 				return stockName;
 			} catch (Exception e) {
@@ -113,7 +125,7 @@ public class OrgStockUtil {
 	}
 
 	public static List<Stock> getStockList(Calendar calendar, String stockCode) throws IOException {
-		String yy = YY_FORMAT.format(calendar.getTime());
+		String yy = String.valueOf(Integer.valueOf(YY_FORMAT.format(calendar.getTime())) - 1911);
 		String mm = MM_FORMAT.format(calendar.getTime());
 
 		InputStream openStream = null;
@@ -122,27 +134,29 @@ public class OrgStockUtil {
 
 		List<Stock> list = new ArrayList<Stock>();
 		try {
-			String charset = "MS950";
-			String query = String.format("yy=%s&mm=%s&stk_no=%s", URLEncoder.encode(yy, charset),
-					URLEncoder.encode(mm, charset), URLEncoder.encode(stockCode, charset));
-			String url = String.format("%s?%s", URL, query);
+//			String query = String.format("yy=%s&mm=%s&stk_no=%s", URLEncoder.encode(yy, CHARSET),
+//					URLEncoder.encode(mm, CHARSET), URLEncoder.encode(stockCode, CHARSET));
+//			String url = String.format("%s?%s", URL, query);
+//
+//			URLConnection connection = new URL(url).openConnection();
+//			connection.setDoOutput(true); // Triggers POST.
+//			connection.setRequestProperty("Accept-Charset", CHARSET);
+//			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + CHARSET);
+//			OutputStream output = connection.getOutputStream();
+//			try {
+//				output.write(query.getBytes(CHARSET));
+//			} finally {
+//				try {
+//					output.close();
+//				} catch (IOException logOrIgnore) {
+//				}
+//			}
+//			openStream = connection.getInputStream();
 
-			URLConnection connection = new URL(url).openConnection();
-			connection.setDoOutput(true); // Triggers POST.
-			connection.setRequestProperty("Accept-Charset", charset);
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
-			OutputStream output = connection.getOutputStream();
-			try {
-				output.write(query.getBytes(charset));
-			} finally {
-				try {
-					output.close();
-				} catch (IOException logOrIgnore) {
-				}
-			}
-			openStream = connection.getInputStream();
+			String url = String.format(URL, yy, mm, stockCode);
 
-			reader = new InputStreamReader(openStream, charset);
+			openStream = new URL(url).openStream();
+			reader = new InputStreamReader(openStream, CHARSET);
 
 			csvPersonReader = new CSVReaderBuilder<String[]>(reader).strategy(CSVStrategy.UK_DEFAULT)
 					.entryParser(new DefaultCSVEntryParser()).build();

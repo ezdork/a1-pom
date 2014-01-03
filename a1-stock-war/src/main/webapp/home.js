@@ -103,21 +103,23 @@ function displayStockList(stockCode, needFocus, event) {
 					};
 					flags.push(flag);
 				} else if (data[i]['highest']) {
+					var limit = data[i]['high'] == data[i]['close'];
 					flag = {
 						x : datetime,
 						title : '<a style="font-size:14px">漲<br/></a>',
-						text : '<br/>曾經漲停<br/>',
-						color : '#FFFFFF',
-						fillColor : '#FF5050'
+						text : limit ? '<br/>漲停鎖死<br/>' : '<br/>曾經漲停<br/>',
+						color : limit ? '#FFFFFF' : '#FF5050',
+						fillColor : limit ? '#FF5050' : '#FFFFFF'
 					};
 					flags.push(flag);
 				} else if (data[i]['lowest']) {
+					var limit = data[i]['low'] == data[i]['close'];
 					flag = {
 						x : datetime,
 						title : '<a style="font-size:14px">跌<br/></a>',
-						text : '<br/>曾經跌停<br/>',
-						color : '#FFFFFF',
-						fillColor : '#50FF50'
+						text : limit ? '<br/>跌停鎖死<br/>' : '<br/>曾經跌停<br/>',
+						color : limit ? '#FFFFFF' : '#50FF50',
+						fillColor : limit ? '#50FF50' : '#FFFFFF'
 					};
 					flags.push(flag);
 				}

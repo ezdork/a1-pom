@@ -169,7 +169,7 @@ public class OrgStockUtil {
 
 					stock.setCode(stockCode);
 
-					String date = String.valueOf(Integer.valueOf(row[0].trim().replace("/", "")) + 19110000);
+					String date = String.valueOf(Integer.valueOf(row[0].trim().replace("/", "").replace("＊", "")) + 19110000);
 					stock.setDate(date); // 日期
 
 					stock.setVolumn(Integer.valueOf(row[1].replace(",", ""))); // 成交仟股

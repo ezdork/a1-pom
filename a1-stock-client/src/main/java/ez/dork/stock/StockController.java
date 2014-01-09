@@ -86,6 +86,8 @@ public class StockController {
 			map.put("low", stock.getLow());
 			map.put("volumn", stock.getVolumn());
 			map.put("close", stock.getClose());
+			
+			map.put("lowestPrice", PriceUtil.getNextLowestPrice(stock.getClose()));
 
 			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose() > 0) ? stock.getHigh()
 					/ stockList.get(i - 5).getClose() : 0d;

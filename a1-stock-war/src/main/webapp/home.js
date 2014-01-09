@@ -45,6 +45,7 @@ function displayStockList(stockCode, needFocus, event) {
 
 			// split the data set into ohlc and volume
 			var ohlc = [], ma5 = [], ma10 = [], bias = [], high240 = [], flags = [], volume = [], dataLength = data.length;
+			var lowestPrice = [];
 			var before5days = [];
 			var low240 = [];
 
@@ -92,6 +93,11 @@ function displayStockList(stockCode, needFocus, event) {
 				volume.push([ datetime, // the date
 				data[i]['volumn'] // the volume
 				]);
+
+				lowestPrice.push([ datetime, // the date
+				data[i]['lowestPrice'] // the volume
+				]);
+				
 
 				if (data[i]['highest'] && data[i]['lowest']) {
 					flag = {
@@ -208,6 +214,12 @@ function displayStockList(stockCode, needFocus, event) {
 					data : ma10,
 					color : '#969696',
 					yAxis : 0
+				}, {
+					type : 'line',
+					name : '明日跌停價',
+					data : lowestPrice,
+					color : '#50FF50',
+					yAxis : 0 
 				}, {
 					type : 'line',
 					name : 'before5days 漲幅',

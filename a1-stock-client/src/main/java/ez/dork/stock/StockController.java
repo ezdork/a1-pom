@@ -169,7 +169,7 @@ public class StockController {
 			return "{\"err\":\"fetching.. please wait!\"}";
 		}
 		if (!AnalysisCron.CODE_QUEUE.isEmpty()) {
-			return "{\"err\":\"analysising.. please wait!\"}";
+			return "{\"err\":\"analysing.. please wait!\"}";
 		}
 
 		if (clearCache) {

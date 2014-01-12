@@ -20,6 +20,10 @@ function getWantedStockList(date, clearCache, event) {
 	}
 	$.getJSON(url, function(data) {
 		if (data) {
+			if(data.err){
+				$('#content').html(data.err);
+				return;
+			}
 			$('#content').empty();
 			appendTable('resultList1', data);
 			appendTable('resultList2', data);

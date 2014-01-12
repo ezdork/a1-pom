@@ -86,7 +86,7 @@ public class StockController {
 			map.put("low", stock.getLow());
 			map.put("volumn", stock.getVolumn());
 			map.put("close", stock.getClose());
-			
+
 			map.put("lowestPrice", PriceUtil.getNextLowestPrice(stock.getClose()));
 
 			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose() > 0) ? stock.getHigh()
@@ -164,6 +164,13 @@ public class StockController {
 	String getWantedStockList(@RequestParam("date") String date,
 			@RequestParam(required = false, value = "clearCache", defaultValue = "false") Boolean clearCache)
 			throws InterruptedException, ParseException {
+
+		if (!StockCron.STOCK_QUEUE.isEmpty()) {
+			return "{\"err\":\"fetching.. please wait!\"}";
+		}
+		if (!AnalysisCron.CODE_QUEUE.isEmpty()) {
+			return "{\"err\":\"analysising.. please wait!\"}";
+		}
 
 		if (clearCache) {
 			wantedStockMap.clear();

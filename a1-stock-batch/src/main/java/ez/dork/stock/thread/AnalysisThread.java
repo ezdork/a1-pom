@@ -139,7 +139,8 @@ public class AnalysisThread extends Thread {
 		Double comparedHigh = PriceUtil.highest(high240);
 //		 Double comparedHigh = highest;
 
-		return currentStock.getVolumn() > 100 && currentHigh.compareTo(nextHighestPrice) == 0
+		return // currentStock.getVolumn() > 100 && 
+				currentHigh.compareTo(nextHighestPrice) == 0
 				&& currentHigh.compareTo(comparedHigh) >= 0;
 		// && PriceUtil.highest(high480).compareTo(comparedHigh) > 0;
 	}

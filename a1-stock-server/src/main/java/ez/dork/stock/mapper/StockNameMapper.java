@@ -1,9 +1,11 @@
 package ez.dork.stock.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import ez.dork.stock.domain.StockName;
 import ez.dork.stock.domain.StockNameExample;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface StockNameMapper {
 
@@ -96,4 +98,5 @@ public interface StockNameMapper {
 	int updateByPrimaryKey(StockName record);
 
 	List<StockName> selectAll();
+
 }

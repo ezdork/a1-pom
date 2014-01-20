@@ -33,7 +33,7 @@ public class StockServiceImpl implements StockService {
 	public List<StockName> selectAllStockName() {
 		return stockNameMapper.selectAll();
 	}
-	
+
 	@Override
 	public int insert(StockName stockName) {
 		return stockNameMapper.insert(stockName);

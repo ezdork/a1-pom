@@ -1,3 +1,22 @@
+function getSellPrice(date, stockCode, event){
+	if (event && event.keyCode != 13) {
+		return false; // returning false will prevent the event from bubbling
+		// up.
+	}
+	stockCode = $.trim(stockCode);
+	var url = 'getOtherList.do?date=' + date +'&stockCode='+stockCode;
+	$.getJSON(url, function(data) {
+		if(data){
+			if(data.err){
+				alert('請檢察股票代號:'+stockCode);
+			} else{
+				$('#currentBuyList tr:eq(-1)').after('<tr><td>'+stockMap[stockCode]+'</td><td>'
+						+stockCode+'</td><td>'+data['ma5']+'</td><td>'+data['lowestPrice']+'</td><td colspan="6">亂下單的</td></tr>');
+			}
+		}
+	});
+}
+
 function hideAlreadyBuy() {
 	$('#hideAlreadyBuy').is(':checked') ? $('.already_buy').hide() : $('.already_buy').show();
 }

@@ -39,4 +39,5 @@ public interface StockService {
 	int insert(StockName stockName);
 
 	List<StockName> selectAllStockName();
+
 }

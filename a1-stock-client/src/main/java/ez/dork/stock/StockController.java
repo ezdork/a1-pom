@@ -44,6 +44,27 @@ public class StockController {
 	@Autowired
 	private StockNameCron stockNameCron;
 
+	@RequestMapping(value = "/getOtherList")
+	public @ResponseBody
+	String getOtherList(@RequestParam("date") String date, @RequestParam("stockCode") String stockCode) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Stock> resultList = stockService.selectLast5(stockCode, date);
+		Double[] doubleArray = new Double[5];
+		for (int i = 0; i < 5; i++) {
+			if (i < resultList.size()) {
+				doubleArray[i] = resultList.get(i).getClose();
+			}
+		}
+		map.put("ma5", PriceUtil.getLowerPrice(PriceUtil.average(doubleArray)));
+		if (!resultList.isEmpty()) {
+			map.put("lowestPrice", PriceUtil.getNextLowestPrice(resultList.get(0).getClose()));
+		} else {
+			map.put("err", "無此股票資料");
+		}
+
+		return new Gson().toJson(map);
+	}
+
 	@RequestMapping(value = "/selectAllStockName")
 	public @ResponseBody
 	String selectAllStockName() throws UnsupportedEncodingException {

@@ -38,6 +38,7 @@ th,td {
 		
 		<input type="checkbox" id="hideAlreadyBuy" onclick="hideAlreadyBuy()">隱藏已買
 		<input type="checkbox" id="hideNoBuy" onclick="hideNoBuy()">隱藏不買
+		亂買的股票代號:<input id="stockCode" maxlength="6" onkeyup="getSellPrice($('#date').val(),$('#stockCode').val(),event);"> 
 	</div>
 
 	<div id="content">loading...</div>

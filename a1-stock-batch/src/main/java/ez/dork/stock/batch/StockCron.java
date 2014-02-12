@@ -29,10 +29,14 @@ public class StockCron {
 	@Autowired
 	private StockService stockService;
 
+	@Autowired
+	private AnalysisCron analysisCron;
+
 	@Scheduled(cron = "0 0 17 * * ?")
 	public void getStock() throws IOException {
 		if (STOCK_QUEUE.isEmpty()) {
 			getStock(null);
+			analysisCron.analysisStock();
 		}
 	}
 

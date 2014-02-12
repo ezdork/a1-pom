@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import ez.dork.stock.domain.StockName;
@@ -28,33 +29,44 @@ public class StockCron {
 	@Autowired
 	private StockService stockService;
 
-	// @Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
+	@Scheduled(cron = "0 0 17 * * ?")
+	public void getStock() throws IOException {
+		if (STOCK_QUEUE.isEmpty()) {
+			getStock(null);
+		}
+	}
+
 	public void getStock(String wantScanStockCode) throws IOException {
 
 		if (wantScanStockCode != null) {
-			STOCK_QUEUE.offer(new StockQueue(wantScanStockCode, Calendar.getInstance(), 0));
+			STOCK_QUEUE.offer(new StockQueue(wantScanStockCode, Calendar
+					.getInstance(), 0));
 		} else {
 
-			List<StockName> selectAllStockName = stockService.selectAllStockName();
+			List<StockName> selectAllStockName = stockService
+					.selectAllStockName();
 			List<String> codeList = GovStockUtil.getCodeList();
 			List<String> codeList2 = OrgStockUtil.getCodeList();
 
 			List<String> alreadyAddCodeList = new ArrayList<String>();
 			for (StockName stockName : selectAllStockName) {
 				String code = stockName.getCode().trim();
-				STOCK_QUEUE.offer(new StockQueue(code, Calendar.getInstance(), stockName.getKind()));
+				STOCK_QUEUE.offer(new StockQueue(code, Calendar.getInstance(),
+						stockName.getKind()));
 				alreadyAddCodeList.add(code);
 			}
 			codeList.removeAll(alreadyAddCodeList);
 			for (String stockCode : codeList) {
 				System.out.println(stockCode);
-				STOCK_QUEUE.offer(new StockQueue(stockCode, Calendar.getInstance(), 0));
+				STOCK_QUEUE.offer(new StockQueue(stockCode, Calendar
+						.getInstance(), 0));
 			}
-			
+
 			codeList2.removeAll(alreadyAddCodeList);
 			for (String stockCode : codeList2) {
 				System.out.println(stockCode);
-				STOCK_QUEUE.offer(new StockQueue(stockCode, Calendar.getInstance(), 1));
+				STOCK_QUEUE.offer(new StockQueue(stockCode, Calendar
+						.getInstance(), 1));
 			}
 		}
 

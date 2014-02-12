@@ -12,6 +12,7 @@ function getSellPrice(date, stockCode, event){
 			} else{
 				$('#currentBuyList tr:eq(-1)').after('<tr><td>'+stockMap[stockCode]+'</td><td>'
 						+stockCode+'</td><td>'+data['ma5']+'</td><td>'+data['lowestPrice']+'</td><td colspan="6">亂下單的</td></tr>');
+				$('#stockCode').val('');
 			}
 		}
 	});

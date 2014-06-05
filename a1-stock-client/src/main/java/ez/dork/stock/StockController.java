@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 
 import ez.dork.stock.batch.AnalysisCron;
 import ez.dork.stock.batch.StockCron;
-import ez.dork.stock.batch.StockNameCron;
 import ez.dork.stock.domain.EarnMoney;
 import ez.dork.stock.domain.Stock;
 import ez.dork.stock.domain.StockName;
@@ -41,12 +40,11 @@ public class StockController {
 	private StockCron stockCron;
 	@Autowired
 	private AnalysisCron analysisCron;
-	@Autowired
-	private StockNameCron stockNameCron;
 
 	@RequestMapping(value = "/getOtherList")
 	public @ResponseBody
-	String getOtherList(@RequestParam("date") String date, @RequestParam("stockCode") String stockCode) {
+	String getOtherList(@RequestParam("date") String date,
+			@RequestParam("stockCode") String stockCode) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<Stock> resultList = stockService.selectLast5(stockCode, date);
 		Double[] doubleArray = new Double[5];
@@ -57,7 +55,8 @@ public class StockController {
 		}
 		map.put("ma5", PriceUtil.getLowerPrice(PriceUtil.average(doubleArray)));
 		if (!resultList.isEmpty()) {
-			map.put("lowestPrice", PriceUtil.getNextLowestPrice(resultList.get(0).getClose()));
+			map.put("lowestPrice",
+					PriceUtil.getNextLowestPrice(resultList.get(0).getClose()));
 		} else {
 			map.put("err", "無此股票資料");
 		}
@@ -70,16 +69,18 @@ public class StockController {
 	String selectAllStockName() throws UnsupportedEncodingException {
 		List<StockName> selectAllStockName = stockService.selectAllStockName();
 		for (StockName stockName : selectAllStockName) {
-			stockName.setName(java.net.URLEncoder.encode(stockName.getName().trim(), "UTF8"));
+			stockName.setName(java.net.URLEncoder.encode(stockName.getName()
+					.trim(), "UTF8"));
 		}
 		return new Gson().toJson(selectAllStockName);
 	}
 
 	@RequestMapping(value = "/getStockName")
 	public @ResponseBody
-	void getStockName(@RequestParam(required = false, value = "wantKnowStockCode") String wantKnowStockCode)
+	void getStockName(
+			@RequestParam(required = false, value = "wantKnowStockCode") String wantKnowStockCode)
 			throws IOException {
-		stockNameCron.getStockName(wantKnowStockCode);
+		// stockNameCron.getStockName(wantKnowStockCode);
 	}
 
 	@RequestMapping(value = "/getData")
@@ -108,10 +109,12 @@ public class StockController {
 			map.put("volumn", stock.getVolumn());
 			map.put("close", stock.getClose());
 
-			map.put("lowestPrice", PriceUtil.getNextLowestPrice(stock.getClose()));
+			map.put("lowestPrice",
+					PriceUtil.getNextLowestPrice(stock.getClose()));
 
-			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose() > 0) ? stock.getHigh()
-					/ stockList.get(i - 5).getClose() : 0d;
+			Double before5days = (i - 5 >= 0 && stockList.get(i - 5).getClose() > 0) ? stock
+					.getHigh() / stockList.get(i - 5).getClose()
+					: 0d;
 			map.put("before5days", before5days);
 
 			close[i % closeInt] = stock.getClose();
@@ -125,10 +128,12 @@ public class StockController {
 			ma10[i % 10] = stock.getClose();
 
 			if (yesterdayStock != null) {
-				if (PriceUtil.getNextHighestPrice(yesterdayStock.getClose()).compareTo(stock.getHigh()) == 0) {
+				if (PriceUtil.getNextHighestPrice(yesterdayStock.getClose())
+						.compareTo(stock.getHigh()) == 0) {
 					map.put("highest", true);
 				}
-				if (PriceUtil.getNextLowestPrice(yesterdayStock.getClose()).compareTo(stock.getLow()) == 0) {
+				if (PriceUtil.getNextLowestPrice(yesterdayStock.getClose())
+						.compareTo(stock.getLow()) == 0) {
 					map.put("lowest", true);
 				}
 			}
@@ -156,11 +161,11 @@ public class StockController {
 
 	@RequestMapping(value = "/activeStockCron")
 	public @ResponseBody
-	void activeStockCron(@RequestParam(required = false, value = "wantScanStockCode") String wantScanStockCode)
+	void activeStockCron(
+			@RequestParam(required = false, value = "wantScanStockCode") String wantScanStockCode)
 			throws IOException {
 		if (StockCron.STOCK_QUEUE.isEmpty()) {
-			stockCron.getStock(wantScanStockCode);
-			activeAnalysisCron();
+			stockCron.getStock();
 		}
 	}
 
@@ -176,13 +181,14 @@ public class StockController {
 	public @ResponseBody
 	String getLatestStockDate() {
 		return stockService.getLatestStockDate();
-	};
+	}
 
 	private Map<String, String> wantedStockMap = new HashMap<String, String>();
 
 	@RequestMapping(value = "/getWantedStockList")
 	public @ResponseBody
-	String getWantedStockList(@RequestParam("date") String date,
+	String getWantedStockList(
+			@RequestParam("date") String date,
 			@RequestParam(required = false, value = "clearCache", defaultValue = "false") Boolean clearCache)
 			throws InterruptedException, ParseException {
 
@@ -287,7 +293,8 @@ public class StockController {
 					doubleArray[i] = resultList.get(i).getClose();
 				}
 			}
-			map.put("ma5", PriceUtil.getLowerPrice(PriceUtil.average(doubleArray)));
+			map.put("ma5",
+					PriceUtil.getLowerPrice(PriceUtil.average(doubleArray)));
 			Double close = resultList.get(0).getClose();
 			map.put("lowestPrice", PriceUtil.getNextLowestPrice(close));
 			map.put("nowPrice", close);
@@ -312,13 +319,15 @@ public class StockController {
 		return json;
 	}
 
-	private static List<Map<String, Object>> formatList(List<Stock> stockList, List<Map<String, Object>> buyList) {
+	private static List<Map<String, Object>> formatList(List<Stock> stockList,
+			List<Map<String, Object>> buyList) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		for (Stock stock : stockList) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("code", stock.getCode());
 			map.put("date", stock.getDate());
-			Double nextHighestPrice = PriceUtil.getNextHighestPrice(stock.getClose());
+			Double nextHighestPrice = PriceUtil.getNextHighestPrice(stock
+					.getClose());
 			map.put("nextHighestPrice", nextHighestPrice);
 			map.put("buyAmount", Math.floor(200 / nextHighestPrice));
 			for (Map<String, Object> currentBuy : buyList) {
@@ -336,7 +345,8 @@ public class StockController {
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, Integer.valueOf(date.substring(0, 4)));
 		calendar.set(Calendar.MONTH, Integer.valueOf(date.substring(4, 6)) - 1);
-		calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(date.substring(6, 8)));
+		calendar.set(Calendar.DAY_OF_MONTH,
+				Integer.valueOf(date.substring(6, 8)));
 		return calendar;
 	}
 }

@@ -15,6 +15,7 @@ import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import com.googlecode.jcsv.reader.internal.DefaultCSVEntryParser;
 
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 
 /**
  * 上市股票
@@ -45,6 +46,11 @@ public class GovStockUtil {
 
 	public static List<Stock> getStockList(Calendar calendar)
 			throws IOException {
+		List<String[]> rowList = getRowList(calendar);
+		return getStockList(calendar, rowList);
+	}
+
+	public static List<String[]> getRowList(Calendar calendar) {
 		String yyyyMM = YYYY_MM_FORMAT.format(calendar.getTime());
 		String yyyyMMdd = YYYY_MM_DD_FORMAT.format(calendar.getTime());
 		String url = String.format(URL, yyyyMM, yyyyMMdd);
@@ -53,7 +59,7 @@ public class GovStockUtil {
 		InputStreamReader reader = null;
 		CSVReader<String[]> csvPersonReader = null;
 
-		List<Stock> list = new ArrayList<Stock>();
+		List<String[]> result = new ArrayList<String[]>();
 		try {
 			openStream = new URL(url).openStream();
 
@@ -63,46 +69,85 @@ public class GovStockUtil {
 					.strategy(CSVStrategy.UK_DEFAULT)
 					.entryParser(new DefaultCSVEntryParser()).build();
 
-			List<String[]> stockList = csvPersonReader.readAll();
-			for (int index = 0; index < stockList.size(); index++) {
-				String[] row = stockList.get(index);
-				try {
-					if (row.length < 8) {
-						continue;
-					}
-					Stock stock = new Stock();
-
-					stock.setCode(row[0].replace("=", "").trim());
-
-					stock.setDate(yyyyMMdd); // 日期
-
-					Double floor = Math.floor(Integer.valueOf(row[2].replace(
-							",", "")) / 1000);
-					stock.setVolumn(floor.intValue()); // 成交股數
-
-					stock.setOpen(Double.valueOf(row[5].replace(",", ""))); // 開盤
-					stock.setHigh(Double.valueOf(row[6].replace(",", ""))); // 最高
-					stock.setLow(Double.valueOf(row[7].replace(",", ""))); // 最低
-					stock.setClose(Double.valueOf(row[8].replace(",", ""))); // 收盤
-
-					list.add(stock);
-				} catch (Exception e) {
-				}
-			}
-		} catch (NumberFormatException e) {
+			result = csvPersonReader.readAll();
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+
 			if (csvPersonReader != null) {
-				csvPersonReader.close();
+				try {
+					csvPersonReader.close();
+				} catch (IOException e) {
+				}
 			}
 			if (reader != null) {
-				reader.close();
+				try {
+					reader.close();
+				} catch (IOException e) {
+				}
 			}
 			if (openStream != null) {
-				openStream.close();
+				try {
+					openStream.close();
+				} catch (IOException e) {
+				}
 			}
 		}
+		return result;
+	}
 
+	public static List<StockName> getStockNameList(List<String[]> rowList) {
+		List<StockName> list = new ArrayList<StockName>();
+		for (int index = 0; index < rowList.size(); index++) {
+			String[] row = rowList.get(index);
+			try {
+				if (row.length < 8) {
+					continue;
+				}
+				StockName stockName = new StockName();
+
+				stockName.setCode(row[0].replace("=", "").trim());
+				stockName.setName(row[1].trim());
+				stockName.setKind(0);
+
+				list.add(stockName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+
+	public static List<Stock> getStockList(Calendar calendar,
+			List<String[]> rowList) {
+		String yyyyMMdd = YYYY_MM_DD_FORMAT.format(calendar.getTime());
+		List<Stock> list = new ArrayList<Stock>();
+		for (int index = 0; index < rowList.size(); index++) {
+			String[] row = rowList.get(index);
+			try {
+				if (row.length < 8) {
+					continue;
+				}
+				Stock stock = new Stock();
+
+				stock.setCode(row[0].replace("=", "").trim());
+
+				stock.setDate(yyyyMMdd); // 日期
+
+				Double floor = Math.floor(Integer.valueOf(row[2].replace(",",
+						"")) / 1000);
+				stock.setVolumn(floor.intValue()); // 成交股數
+
+				stock.setOpen(Double.valueOf(row[5].replace(",", ""))); // 開盤
+				stock.setHigh(Double.valueOf(row[6].replace(",", ""))); // 最高
+				stock.setLow(Double.valueOf(row[7].replace(",", ""))); // 最低
+				stock.setClose(Double.valueOf(row[8].replace(",", ""))); // 收盤
+
+				list.add(stock);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		return list;
 	}
 }

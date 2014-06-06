@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import ez.dork.stock.domain.Stock;
+import ez.dork.stock.domain.StockName;
 import ez.dork.stock.queue.StockQueue;
 import ez.dork.stock.service.StockService;
 import ez.dork.stock.util.GovStockUtil;
@@ -34,15 +35,49 @@ public class StockCron {
 	public void getStock() throws IOException {
 		if (AnalysisCron.CODE_QUEUE.isEmpty()) {
 			Calendar calendar = Calendar.getInstance();
-			List<Stock> stockList = GovStockUtil.getStockList(calendar);
-			for (Stock stock : stockList) {
-				stockService.insert(stock);
-			}
-			List<Stock> stockList2 = OrgStockUtil.getStockList(calendar);
-			for (Stock stock : stockList2) {
-				stockService.insert(stock);
-			}
+			insertGovStock(calendar);
+			insertOrgStock(calendar);
 			analysisCron.analysisStock();
+		}
+	}
+
+	private void insertOrgStock(Calendar calendar) {
+		List<String[]> rowList = OrgStockUtil.getRowList(calendar);
+		List<Stock> stockList = OrgStockUtil.getStockList(calendar, rowList);
+		List<StockName> stockNameList = OrgStockUtil.getStockNameList(rowList);
+		for (Stock stock : stockList) {
+			try {
+				stockService.insert(stock);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		for (StockName stockName : stockNameList) {
+			try {
+				stockService.insert(stockName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void insertGovStock(Calendar calendar) {
+		List<String[]> rowList = GovStockUtil.getRowList(calendar);
+		List<Stock> stockList = GovStockUtil.getStockList(calendar, rowList);
+		List<StockName> stockNameList = GovStockUtil.getStockNameList(rowList);
+		for (Stock stock : stockList) {
+			try {
+				stockService.insert(stock);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		for (StockName stockName : stockNameList) {
+			try {
+				stockService.insert(stockName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

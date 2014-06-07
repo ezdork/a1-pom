@@ -98,6 +98,7 @@ public class OrgStockUtil {
 				if (row.length < 10) {
 					continue;
 				}
+				Math.floor(Integer.valueOf(row[8].replace(",", "")) / 1000);
 				StockName stockName = new StockName();
 
 				stockName.setCode(row[0].replace("=", "").trim());
@@ -106,7 +107,9 @@ public class OrgStockUtil {
 
 				list.add(stockName);
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (!(e instanceof NumberFormatException)) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return list;
@@ -123,13 +126,12 @@ public class OrgStockUtil {
 					continue;
 				}
 				Stock stock = new Stock();
-
 				stock.setCode(row[0].replace("=", "").trim());
-
 				stock.setDate(YYYYMMDD_FORMAT.format(calendar.getTime())); // 日期
 
-				stock.setVolumn((int) Math.floor(Integer.valueOf(row[8]
-						.replace(",", "")) / 1000)); // 成交仟股
+				Double floor = Math.floor(Integer.valueOf(row[8].replace(",",
+						"")) / 1000);
+				stock.setVolumn(floor.intValue()); // 成交仟股
 
 				stock.setOpen(Double.valueOf(row[4].replace(",", ""))); // 開盤
 				stock.setHigh(Double.valueOf(row[5].replace(",", ""))); // 最高
@@ -138,7 +140,9 @@ public class OrgStockUtil {
 
 				list.add(stock);
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (!(e instanceof NumberFormatException)) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return list;

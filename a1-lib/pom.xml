@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>a1-lib</artifactId>
 	<properties>
-		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
+		<org.springframework.version>4.0.5.RELEASE</org.springframework.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -96,6 +96,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -104,15 +104,18 @@ public class GovStockUtil {
 				if (row.length < 8) {
 					continue;
 				}
-				StockName stockName = new StockName();
+				Math.floor(Integer.valueOf(row[2].replace(",", "")) / 1000);
 
+				StockName stockName = new StockName();
 				stockName.setCode(row[0].replace("=", "").trim());
 				stockName.setName(row[1].trim());
 				stockName.setKind(0);
 
 				list.add(stockName);
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (!(e instanceof NumberFormatException)) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return list;
@@ -145,7 +148,9 @@ public class GovStockUtil {
 
 				list.add(stock);
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (!(e instanceof NumberFormatException)) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return list;

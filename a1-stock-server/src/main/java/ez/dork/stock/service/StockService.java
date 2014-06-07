@@ -40,4 +40,8 @@ public interface StockService {
 
 	List<StockName> selectAllStockName();
 
+	void insertOrgStock(Calendar calendar);
+
+	void insertGovStock(Calendar calendar);
+
 }

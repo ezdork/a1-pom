@@ -2,6 +2,7 @@ package ez.dork.stock.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,14 +25,18 @@ public class GetStockTest {
 	@Test
 	public void test() {
 		Calendar from = Calendar.getInstance();
-		from.set(2012, 1, 1);
+		from.set(1990, 1, 3);
 
 		Calendar to = Calendar.getInstance();
-		to.set(2013, 1, 1);
+		// to.set(1984, 0, 1);
 		while (to.compareTo(from) > 0) {
-			System.out.println(yyyyMMdd.format(to.getTime()));
+			long start = new Date().getTime();
 			service.insertGovStock(to);
 			service.insertOrgStock(to);
+
+			long end = new Date().getTime();
+			System.out.println(yyyyMMdd.format(to.getTime()) + " : "
+					+ (end - start));
 			to.add(Calendar.DAY_OF_MONTH, -1);
 		}
 

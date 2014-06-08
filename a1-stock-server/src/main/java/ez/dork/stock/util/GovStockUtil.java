@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import com.googlecode.jcsv.CSVStrategy;
 import com.googlecode.jcsv.reader.CSVReader;
@@ -24,25 +28,16 @@ import ez.dork.stock.domain.StockName;
  * 
  */
 public class GovStockUtil {
-	// private static final String KIND_ROOT_URL =
-	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data2.php";
-	// private static final String KIND_URL =
-	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK_words.php?STK_NAME=%d";
 
 	private static final String CHARSET = "MS950";
-	// private static final String CATEGORY_ROOT_URL =
-	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/data_Top.htm";
-	// private static final String CATEGORY_URL =
-	// "http://www.twse.com.tw/ch/trading/inc/STKCHOICE/STK%s.php?STK=%s";
 
-	// private static final String URL =
-	// "http://www.twse.com.tw/ch/trading/exchange/STOCK_DAY/STOCK_DAY_print.php?genpage=genpage/Report%s/%s_F3_1_8_%s.php&type=csv";
-	private static final SimpleDateFormat YYYY_MM_FORMAT = new SimpleDateFormat(
-			"yyyyMM");
-	private static final SimpleDateFormat YYYY_MM_DD_FORMAT = new SimpleDateFormat(
-			"yyyyMMdd");
-
+	private static final String URL_890104_930210 = "http://www.twse.com.tw/ch/trading/exchange/MI_INDEX/MI_INDEX_oldtsec.php";
 	private static final String URL = "http://www.twse.com.tw/ch/trading/exchange/MI_INDEX/MI_INDEX3_print.php?genpage=genpage/Report%s/A112%sALLBUT0999_1.php&type=csv";
+
+	private static Calendar c930210 = Calendar.getInstance();
+	static {
+		c930210.set(2004, 1, 10);
+	}
 
 	public static List<Stock> getStockList(Calendar calendar)
 			throws IOException {
@@ -50,9 +45,46 @@ public class GovStockUtil {
 		return getStockList(calendar, rowList);
 	}
 
+	private static List<String[]> getRowList890104_930210(Calendar calendar) {
+		List<String[]> result = new ArrayList<String[]>();
+
+		try {
+			String twDate = DateUtil.format(calendar, "tw/MM/dd");
+			Document doc = Jsoup.connect(URL_890104_930210)
+					.data("input_date", twDate).post();
+			Elements tables = doc.getElementsByTag("table");
+			Element lastTable = tables.last();
+			Elements trs = lastTable.getElementsByTag("tr");
+			for (Element tr : trs) {
+				Elements tds = tr.getElementsByTag("td");
+				if (tds.size() == 14) {
+					String[] record = new String[14];
+					int i = 0;
+					for (Element td : tds) {
+						record[i] = td.text();
+						i++;
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	public static List<String[]> getRowList(Calendar calendar) {
-		String yyyyMM = YYYY_MM_FORMAT.format(calendar.getTime());
-		String yyyyMMdd = YYYY_MM_DD_FORMAT.format(calendar.getTime());
+		List<String[]> result = null;
+		if (calendar.compareTo(c930210) > 0) {
+			result = getRowList930211(calendar);
+		} else {
+			result = getRowList890104_930210(calendar);
+		}
+		return result;
+	}
+
+	private static List<String[]> getRowList930211(Calendar calendar) {
+		String yyyyMM = DateUtil.format(calendar, "yyyyMM");
+		String yyyyMMdd = DateUtil.format(calendar, "yyyyMMdd");
 		String url = String.format(URL, yyyyMM, yyyyMMdd);
 
 		InputStream openStream = null;
@@ -73,7 +105,6 @@ public class GovStockUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-
 			if (csvPersonReader != null) {
 				try {
 					csvPersonReader.close();
@@ -123,7 +154,7 @@ public class GovStockUtil {
 
 	public static List<Stock> getStockList(Calendar calendar,
 			List<String[]> rowList) {
-		String yyyyMMdd = YYYY_MM_DD_FORMAT.format(calendar.getTime());
+		String yyyyMMdd = DateUtil.format(calendar, "yyyyMMdd");
 		List<Stock> list = new ArrayList<Stock>();
 		for (int index = 0; index < rowList.size(); index++) {
 			String[] row = rowList.get(index);

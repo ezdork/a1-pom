@@ -25,11 +25,11 @@ public class GetStockTest {
 	@Test
 	public void test() {
 		Calendar from = Calendar.getInstance();
-		from.set(1990, 1, 3);
+		from.set(2014, 4, 1);
 
 		Calendar to = Calendar.getInstance();
-		// to.set(1984, 0, 1);
-		while (to.compareTo(from) > 0) {
+		 to.set(2014, 4, 1);
+		while (to.compareTo(from) >= 0) {
 			long start = new Date().getTime();
 			service.insertGovStock(to);
 			service.insertOrgStock(to);

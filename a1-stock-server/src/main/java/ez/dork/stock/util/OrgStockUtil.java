@@ -35,7 +35,7 @@ public class OrgStockUtil {
 
 	private static final String URL_920801_951229 = "http://hist.gretai.org.tw/Hist/STOCK/AFTERTRADING/DAILY_CLOSE_QUOTES/RSTA3104_%s.HTML";
 	private static final String URL_960101_960420 = "http://www.gretai.org.tw/ch/stock/aftertrading/daily_close_quotesB/stk_quote_result.php?timestamp=%d";
-	private static final String URL = "http://www.gretai.org.tw/ch/stock/aftertrading/DAILY_CLOSE_quotes/stk_quote_download.php?d=%s%s&s=0,asc,0";
+	private static final String URL = "http://www.gretai.org.tw/ch/stock/aftertrading/DAILY_CLOSE_quotes/stk_quote_print.php?d=%s%s&s=0,asc,0";
 	private static Calendar c951229 = Calendar.getInstance();
 	private static Calendar c960420 = Calendar.getInstance();
 	static {
@@ -70,6 +70,7 @@ public class OrgStockUtil {
 					record[5] = tds.get(5).text(); // 最高 (5)
 					record[6] = tds.get(6).text(); // 最低 (6)
 					record[2] = tds.get(2).text(); // 收盤 (2)
+					result.add(record);
 				} catch (Exception e) {
 				}
 			}
@@ -102,6 +103,7 @@ public class OrgStockUtil {
 					record[5] = tds.get(7).text(); // 最高 (5)
 					record[6] = tds.get(8).text(); // 最低 (6)
 					record[2] = tds.get(3).text(); // 收盤 (2)
+					result.add(record);
 				} catch (Exception e) {
 				}
 			}
@@ -139,13 +141,25 @@ public class OrgStockUtil {
 			String url = String.format(URL, twy, mmdd);
 
 			openStream = new URL(url).openStream();
-			reader = new InputStreamReader(openStream, CHARSET);
-
-			csvPersonReader = new CSVReaderBuilder<String[]>(reader)
-					.strategy(CSVStrategy.UK_DEFAULT)
-					.entryParser(new DefaultCSVEntryParser()).build();
-
-			rowList = csvPersonReader.readAll();
+			Document doc = Jsoup.parse(openStream, "UTF8", url);
+			Elements tables = doc.getElementsByTag("table");
+			Element lastTable = tables.last();
+			Elements trs = lastTable.getElementsByTag("tr");
+			for (Element tr : trs) {
+				Elements tds = tr.getElementsByTag("td");
+				String[] record = new String[tds.size()];
+				try {
+					record[0] = tds.get(0).text(); // 股票代號 (0)
+					record[1] = tds.get(1).text(); // 股票名稱 (1)
+					record[8] = tds.get(8).text(); // 成交千股 (8)
+					record[4] = tds.get(4).text(); // 開盤 (4)
+					record[5] = tds.get(5).text(); // 最高 (5)
+					record[6] = tds.get(6).text(); // 最低 (6)
+					record[2] = tds.get(2).text(); // 收盤 (2)
+					rowList.add(record);
+				} catch (Exception e) {
+				}
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

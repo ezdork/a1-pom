@@ -11,3 +11,7 @@ target/
 .settings/
 .classpath
 .project
+
+#Idea
+.idea/
+*.iml

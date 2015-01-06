@@ -8,8 +8,8 @@
 
 	<context id="context1">
 		<jdbcConnection driverClass="org.postgresql.Driver"
-			connectionURL="jdbc:postgresql://localhost:5433/postgres" userId="postgres"
-			password="pass@word1" />
+			connectionURL="jdbc:postgresql://10.0.1.52:5432/postgres" userId="postgres"
+			password="Asdf1212" />
 
 
 		<!-- domain -->

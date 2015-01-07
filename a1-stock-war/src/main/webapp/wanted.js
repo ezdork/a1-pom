@@ -177,6 +177,14 @@ $(function() {
 			} catch (e) {
 			}
 		}
+
+		$.getJSON('getLatestStockDate.do', function(data) {
+			if (data) {
+				$('#date').val(data);
+				getWantedStockList(data);
+			}
+		});
+
 	});
 
 	accounting.settings = {
@@ -195,10 +203,4 @@ $(function() {
 			decimal : "."
 		}
 	};
-	$.getJSON('getLatestStockDate.do', function(data) {
-		if (data) {
-			$('#date').val(data);
-			getWantedStockList(data);
-		}
-	});
 });

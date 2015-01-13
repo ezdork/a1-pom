@@ -161,11 +161,14 @@ public class StockController {
 
 	@RequestMapping(value = "/activeStockCron")
 	public @ResponseBody
-	void activeStockCron(
+	String activeStockCron(
 			@RequestParam(required = false, value = "wantScanStockCode") String wantScanStockCode)
 			throws IOException {
 		if (StockCron.STOCK_QUEUE.isEmpty()) {
 			stockCron.getStock();
+			return "OK";
+		} else {
+			return "RUNNING";
 		}
 	}
 

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -75,11 +76,42 @@ public class GovStockUtil {
 	public static List<String[]> getRowList(Calendar calendar) {
 		List<String[]> result = null;
 		if (calendar.compareTo(c930210) > 0) {
-			result = getRowList930211(calendar);
+			result = getRowList1040113(calendar);
 		} else {
 			result = getRowList890104_930210(calendar);
 		}
 		return result;
+	}
+
+	private static List<String[]> getRowList1040113(Calendar calendar) {
+		String twy_MM_DD = DateUtil.format(calendar, "twy/MM/dd");
+		List<String[]> resultList = new ArrayList<String[]>();
+		Connection.Response res = null;
+		try {
+			res = Jsoup.connect("http://www.twse.com.tw//ch/trading/exchange/MI_INDEX/MI_INDEX.php")
+                    .data("download", "html")
+                    .data("qdate", twy_MM_DD)
+                    .data("selectType", "ALLBUT0999")
+                    .method(Connection.Method.POST)
+                    .execute();
+
+			Document doc = res.parse();
+			Element body = doc.body();
+			Elements tables = body.select("table");
+			Elements trs = tables.get(1).select("tr");
+
+			for (Element tr : trs) {
+				Elements tds = tr.select("td");
+
+				String[] e = new String[tds.size()];
+				for (int i = 0; i < tds.size(); i++) {
+					e[i] = tds.get(i).text();
+				}
+				resultList.add(e);
+			}
+		} catch (IOException e) {
+		}
+		return resultList;
 	}
 
 	private static List<String[]> getRowList930211(Calendar calendar) {
